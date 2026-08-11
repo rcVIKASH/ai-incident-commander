@@ -78,6 +78,7 @@ export const OrganizationScalarFieldEnum = {
   name: 'name',
   slug: 'slug',
   description: 'description',
+  apiKeyHash: 'apiKeyHash',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -91,6 +92,7 @@ export const UserScalarFieldEnum = {
   password: 'password',
   firstName: 'firstName',
   lastName: 'lastName',
+  role: 'role',
   organizationId: 'organizationId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'

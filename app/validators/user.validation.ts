@@ -9,4 +9,11 @@ export const signupSchema = z.object({
   organizationId: z.string().optional(),
 });
 
-export type SignupInput = z.infer<typeof signupSchema>;  
+export const loginSchema = z.object({
+  email: z.email(),
+  password: z.string().min(6).max(40),
+});
+
+
+export type SignupInput = z.infer<typeof signupSchema>;
+export type LoginInput = z.infer<typeof loginSchema>;
