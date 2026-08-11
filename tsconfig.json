@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "target": "ES2023",
+    "module": "ESNEXT",
+    "moduleResolution": "bundler",
+    "rootDir": "./app",
+    "outDir": "./dist",
+    "strict": true,
+    "esModuleInterop": true,
+    "ignoreDeprecations": "6.0",
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "types": ["node"]
+  },
+  "include": ["app/**/*.ts"],
+  "exclude": ["dist", "node_modules"]
+}

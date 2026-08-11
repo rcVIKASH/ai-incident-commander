@@ -1,0 +1,93 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Organization {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  users       User[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model User {
+  id             String        @id @default(cuid())
+  email          String        @unique
+  password       String
+  firstName      String
+  lastName       String
+  organizationId String?
+  organization   Organization? @relation(fields: [organizationId], references: [id])
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+}
+
+enum IncidentStatus {
+  RECEIVED
+  INVESTIGATING
+  WAITING_FOR_APPROVAL
+  ACTION_PENDING
+  RESOLVED
+  FAILED
+  CLOSED
+}
+
+enum IncidentEventType {
+  INCIDENT_CREATED
+  INVESTIGATION_STARTED
+  EVIDENCE_COLLECTED
+  HYPOTHESIS_CREATED
+  APPROVAL_REQUESTED
+  ACTION_APPROVED
+  ACTION_REJECTED
+  ACTION_EXECUTED
+  POSTMORTEM_CREATED
+  INCIDENT_RESOLVED
+}
+
+model Incident {
+  id              String         @id @default(cuid())
+  externalAlertId String?
+  service         String
+  severity        String
+  type            String
+  title           String
+  message         String?
+  status          IncidentStatus @default(RECEIVED)
+  startedAt       DateTime?
+  detectedAt      DateTime?
+  resolvedAt      DateTime?
+  source          String
+  metadata        Json?
+
+  events          IncidentEvent[]
+
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  @@index([status])
+  @@index([service])
+  @@index([severity])
+  @@index([externalAlertId])
+  @@index([createdAt])
+}
+
+model IncidentEvent {
+  id         String            @id @default(cuid())
+  incidentId String
+  type       IncidentEventType
+  message    String?
+  timestamp  DateTime          @default(now())
+  metadata   Json?
+  actor      String?
+
+  incident   Incident          @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+
+  @@index([incidentId, timestamp])
+}
