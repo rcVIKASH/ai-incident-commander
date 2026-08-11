@@ -18,19 +18,22 @@ export const webhookMiddleware = async (
 
   // need to implement api key hashing and compare with hashed value in db
 
-  const organization = await prisma.organization.findFirst({
+  const keyRecord = await prisma.apiKey.findUnique({
     where: {
-      apiKeyHash: apiKey,
+      keyHash: apiKey,
+    },
+    include: {
+      organization: true,
     },
   });
 
-  if (!organization) {
+  if (!keyRecord || !keyRecord.organization) {
     return res.status(401).json({
       message: "Invalid API key",
     });
   }
 
-  req.organization = organization;
+  req.organization = keyRecord.organization;
 
   next();
 };

@@ -2,7 +2,11 @@ import wrapAsync from "../utils/warpAsync.js";
 import ExpressError from "../utils/expressError.js";
 import { prisma } from "../db/config.js";
 import bcrypt from "bcryptjs";
-import { signupSchema, loginSchema } from "../validators/user.validation.js";
+import {
+  signupSchema,
+  loginSchema,
+  updateUserSchema,
+} from "../validators/user.validation.js";
 import { generateToken } from "../utils/jwt.js";
 
 export const userSignup = wrapAsync(async (req, res) => {
@@ -100,3 +104,100 @@ export const userLogin = wrapAsync(async (req, res) => {
     token,
   });
 });
+
+export const updateUser = wrapAsync(async (req, res) => {
+  // 1. Determine target user ID
+  const userId = req.params.id || req.user?.userId || req.body.id;
+
+  if (!userId) {
+    throw new ExpressError("User ID is required", 400);
+  }
+
+  // 2. Check if user exists
+  const existingUser = await prisma.user.findUnique({
+    where: { id: userId },
+  });
+
+  if (!existingUser) {
+    throw new ExpressError("User not found", 404);
+  }
+
+  // 3. Parse and validate payload
+  const updateData = updateUserSchema.parse(req.body);
+
+  // 4. Check email uniqueness if email is changing
+  if (updateData.email && updateData.email !== existingUser.email) {
+    const emailExists = await prisma.user.findUnique({
+      where: { email: updateData.email },
+    });
+
+    if (emailExists) {
+      throw new ExpressError("Email is already in use", 409);
+    }
+  }
+
+  // 5. Hash password if updated
+  let hashedPassword: string | undefined;
+  if (updateData.password) {
+    hashedPassword = await bcrypt.hash(updateData.password, 12);
+  }
+
+  // 6. Update user in database
+  const updatedUser = await prisma.user.update({
+    where: { id: userId },
+    data: {
+      ...(updateData.firstName && { firstName: updateData.firstName }),
+      ...(updateData.lastName && { lastName: updateData.lastName }),
+      ...(updateData.email && { email: updateData.email }),
+      ...(hashedPassword && { password: hashedPassword }),
+    },
+    select: {
+      id: true,
+      email: true,
+      firstName: true,
+      lastName: true,
+      role: true,
+      organizationId: true,
+      createdAt: true,
+      updatedAt: true,
+    },
+  });
+
+  // 7. Return safe user object
+  res.status(200).json({
+    success: true,
+    message: "User updated successfully",
+    user: updatedUser,
+  });
+});
+
+export const deleteUser = wrapAsync(async (req, res) => {
+  // 1. Determine target user ID
+  const userId = req.params.id || req.user?.userId || req.body.id;
+
+  if (!userId) {
+    throw new ExpressError("User ID is required", 400);
+  }
+
+  // 2. Check if user exists
+  const existingUser = await prisma.user.findUnique({
+    where: { id: userId },
+  });
+
+  if (!existingUser) {
+    throw new ExpressError("User not found", 404);
+  }
+
+  // 3. Delete user from database
+  await prisma.user.delete({
+    where: { id: userId },
+  });
+
+  // 4. Return success response
+  res.status(200).json({
+    success: true,
+    message: "User deleted successfully",
+  });
+});
+
+
