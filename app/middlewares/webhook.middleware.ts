@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { prisma } from "../db/config.js";
 
-export const webhookApi = async (
+export const webhookMiddleware = async (
   req: Request,
   res: Response,
   next: NextFunction
