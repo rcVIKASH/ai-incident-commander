@@ -9,7 +9,7 @@ const authMiddleware = wrapAsync(
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     // Get token from cookie or Authorization header
     const token =
-      req.cookies?.accessToken ||
+      req.cookies?.token ||
       req.headers.authorization?.replace("Bearer ", "");
 
     if (!token) {

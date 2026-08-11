@@ -2,6 +2,8 @@ import express, { Request, Response, NextFunction } from "express";
 import ExpressError from "./utils/expressError.js";
 import userRouter from "./router/user.router.js";
 import incidentRouter from "./router/incident.router.js";
+import organizationRouter from "./router/organization.router.js";
+import apiKeyRouter from "./router/apiKey.router.js";
 
 const app = express();
 
@@ -11,6 +13,9 @@ app.use(express.json());
 // routes
 app.use("/api/users", userRouter);
 app.use("/api/incidents", incidentRouter);
+app.use("/api/organizations", organizationRouter);
+app.use("/api/api-keys", apiKeyRouter);
+
 
 // 404 handler — must come AFTER all routes
 app.use((req: Request, res: Response, next: NextFunction) => {

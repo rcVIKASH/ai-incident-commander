@@ -1,3 +1,4 @@
+import crypto from "crypto";
 import { Request, Response, NextFunction } from "express";
 import { prisma } from "../db/config.js";
 
@@ -14,13 +15,12 @@ export const webhookMiddleware = async (
     });
   }
 
-
-
-  // need to implement api key hashing and compare with hashed value in db
+  // Hash incoming raw API key to compare with stored SHA-256 keyHash
+  const keyHash = crypto.createHash("sha256").update(apiKey).digest("hex");
 
   const keyRecord = await prisma.apiKey.findUnique({
     where: {
-      keyHash: apiKey,
+      keyHash,
     },
     include: {
       organization: true,
@@ -32,6 +32,28 @@ export const webhookMiddleware = async (
       message: "Invalid API key",
     });
   }
+
+  // Check if key is revoked
+  if (keyRecord.revokedAt) {
+    return res.status(401).json({
+      message: "API key has been revoked",
+    });
+  }
+
+  // Check if key is expired
+  if (keyRecord.expiresAt && keyRecord.expiresAt < new Date()) {
+    return res.status(401).json({
+      message: "API key has expired",
+    });
+  }
+
+  // Update lastUsedAt asynchronously
+  prisma.apiKey
+    .update({
+      where: { id: keyRecord.id },
+      data: { lastUsedAt: new Date() },
+    })
+    .catch(() => { });
 
   req.organization = keyRecord.organization;
 
