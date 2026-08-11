@@ -9,7 +9,7 @@ export const userSignup = wrapAsync(async (req, res) => {
   // 1. Validate request body
   const data = signupSchema.parse(req.body);
 
-  const { email, password, firstName, lastName, organizationId } = data;
+  const { email, password, firstName, lastName } = data;
 
   // 2. Check if user already exists
   const existingUser = await prisma.user.findUnique({
@@ -30,7 +30,6 @@ export const userSignup = wrapAsync(async (req, res) => {
       password: hashedPassword,
       firstName,
       lastName,
-      organizationId: organizationId ?? null,
     },
     select: {
       id: true,
@@ -98,5 +97,6 @@ export const userLogin = wrapAsync(async (req, res) => {
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     },
+    token,
   });
 });

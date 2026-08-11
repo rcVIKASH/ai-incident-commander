@@ -1,14 +1,9 @@
 class ExpressError extends Error {
-  statusCode: number;
-  status: "fail" | "error";
-  isOperational: boolean;
+  status: number;
 
-  constructor(message: string = "An error occurred", statusCode: number = 500) {
+  constructor(message: string, status: number) {
     super(message);
-
-    this.statusCode = statusCode;
-    this.status = String(statusCode).startsWith("4") ? "fail" : "error";
-    this.isOperational = true;
+    this.status = status;
 
     Error.captureStackTrace(this, this.constructor);
   }
