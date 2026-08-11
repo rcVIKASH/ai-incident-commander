@@ -61,3 +61,8 @@ export type Incident = Prisma.IncidentModel
  * 
  */
 export type IncidentEvent = Prisma.IncidentEventModel
+/**
+ * Model ApiKey
+ * 
+ */
+export type ApiKey = Prisma.ApiKeyModel

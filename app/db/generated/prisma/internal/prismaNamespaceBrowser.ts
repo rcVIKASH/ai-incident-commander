@@ -54,7 +54,8 @@ export const ModelName = {
   Organization: 'Organization',
   User: 'User',
   Incident: 'Incident',
-  IncidentEvent: 'IncidentEvent'
+  IncidentEvent: 'IncidentEvent',
+  ApiKey: 'ApiKey'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -78,7 +79,6 @@ export const OrganizationScalarFieldEnum = {
   name: 'name',
   slug: 'slug',
   description: 'description',
-  apiKeyHash: 'apiKeyHash',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -134,6 +134,20 @@ export const IncidentEventScalarFieldEnum = {
 } as const
 
 export type IncidentEventScalarFieldEnum = (typeof IncidentEventScalarFieldEnum)[keyof typeof IncidentEventScalarFieldEnum]
+
+
+export const ApiKeyScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  keyHash: 'keyHash',
+  organizationId: 'organizationId',
+  createdAt: 'createdAt',
+  lastUsedAt: 'lastUsedAt',
+  expiresAt: 'expiresAt',
+  revokedAt: 'revokedAt'
+} as const
+
+export type ApiKeyScalarFieldEnum = (typeof ApiKeyScalarFieldEnum)[keyof typeof ApiKeyScalarFieldEnum]
 
 
 export const SortOrder = {

@@ -29,7 +29,6 @@ export type OrganizationMinAggregateOutputType = {
   name: string | null
   slug: string | null
   description: string | null
-  apiKeyHash: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -39,7 +38,6 @@ export type OrganizationMaxAggregateOutputType = {
   name: string | null
   slug: string | null
   description: string | null
-  apiKeyHash: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -49,7 +47,6 @@ export type OrganizationCountAggregateOutputType = {
   name: number
   slug: number
   description: number
-  apiKeyHash: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -61,7 +58,6 @@ export type OrganizationMinAggregateInputType = {
   name?: true
   slug?: true
   description?: true
-  apiKeyHash?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -71,7 +67,6 @@ export type OrganizationMaxAggregateInputType = {
   name?: true
   slug?: true
   description?: true
-  apiKeyHash?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -81,7 +76,6 @@ export type OrganizationCountAggregateInputType = {
   name?: true
   slug?: true
   description?: true
-  apiKeyHash?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -164,7 +158,6 @@ export type OrganizationGroupByOutputType = {
   name: string
   slug: string
   description: string | null
-  apiKeyHash: string | null
   createdAt: Date
   updatedAt: Date
   _count: OrganizationCountAggregateOutputType | null
@@ -195,9 +188,9 @@ export type OrganizationWhereInput = {
   name?: Prisma.StringFilter<"Organization"> | string
   slug?: Prisma.StringFilter<"Organization"> | string
   description?: Prisma.StringNullableFilter<"Organization"> | string | null
-  apiKeyHash?: Prisma.StringNullableFilter<"Organization"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Organization"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Organization"> | Date | string
+  apiKey?: Prisma.ApiKeyListRelationFilter
   users?: Prisma.UserListRelationFilter
   incidents?: Prisma.IncidentListRelationFilter
 }
@@ -207,9 +200,9 @@ export type OrganizationOrderByWithRelationInput = {
   name?: Prisma.SortOrder
   slug?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
-  apiKeyHash?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  apiKey?: Prisma.ApiKeyOrderByRelationAggregateInput
   users?: Prisma.UserOrderByRelationAggregateInput
   incidents?: Prisma.IncidentOrderByRelationAggregateInput
 }
@@ -217,7 +210,6 @@ export type OrganizationOrderByWithRelationInput = {
 export type OrganizationWhereUniqueInput = Prisma.AtLeast<{
   id?: string
   slug?: string
-  apiKeyHash?: string
   AND?: Prisma.OrganizationWhereInput | Prisma.OrganizationWhereInput[]
   OR?: Prisma.OrganizationWhereInput[]
   NOT?: Prisma.OrganizationWhereInput | Prisma.OrganizationWhereInput[]
@@ -225,16 +217,16 @@ export type OrganizationWhereUniqueInput = Prisma.AtLeast<{
   description?: Prisma.StringNullableFilter<"Organization"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Organization"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Organization"> | Date | string
+  apiKey?: Prisma.ApiKeyListRelationFilter
   users?: Prisma.UserListRelationFilter
   incidents?: Prisma.IncidentListRelationFilter
-}, "id" | "slug" | "apiKeyHash">
+}, "id" | "slug">
 
 export type OrganizationOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   slug?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
-  apiKeyHash?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.OrganizationCountOrderByAggregateInput
@@ -250,7 +242,6 @@ export type OrganizationScalarWhereWithAggregatesInput = {
   name?: Prisma.StringWithAggregatesFilter<"Organization"> | string
   slug?: Prisma.StringWithAggregatesFilter<"Organization"> | string
   description?: Prisma.StringNullableWithAggregatesFilter<"Organization"> | string | null
-  apiKeyHash?: Prisma.StringNullableWithAggregatesFilter<"Organization"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Organization"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Organization"> | Date | string
 }
@@ -260,9 +251,9 @@ export type OrganizationCreateInput = {
   name: string
   slug: string
   description?: string | null
-  apiKeyHash?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  apiKey?: Prisma.ApiKeyCreateNestedManyWithoutOrganizationInput
   users?: Prisma.UserCreateNestedManyWithoutOrganizationInput
   incidents?: Prisma.IncidentCreateNestedManyWithoutOrganizationInput
 }
@@ -272,9 +263,9 @@ export type OrganizationUncheckedCreateInput = {
   name: string
   slug: string
   description?: string | null
-  apiKeyHash?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  apiKey?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutOrganizationInput
   users?: Prisma.UserUncheckedCreateNestedManyWithoutOrganizationInput
   incidents?: Prisma.IncidentUncheckedCreateNestedManyWithoutOrganizationInput
 }
@@ -284,9 +275,9 @@ export type OrganizationUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKeyHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  apiKey?: Prisma.ApiKeyUpdateManyWithoutOrganizationNestedInput
   users?: Prisma.UserUpdateManyWithoutOrganizationNestedInput
   incidents?: Prisma.IncidentUpdateManyWithoutOrganizationNestedInput
 }
@@ -296,9 +287,9 @@ export type OrganizationUncheckedUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKeyHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  apiKey?: Prisma.ApiKeyUncheckedUpdateManyWithoutOrganizationNestedInput
   users?: Prisma.UserUncheckedUpdateManyWithoutOrganizationNestedInput
   incidents?: Prisma.IncidentUncheckedUpdateManyWithoutOrganizationNestedInput
 }
@@ -308,7 +299,6 @@ export type OrganizationCreateManyInput = {
   name: string
   slug: string
   description?: string | null
-  apiKeyHash?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -318,7 +308,6 @@ export type OrganizationUpdateManyMutationInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKeyHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -328,7 +317,6 @@ export type OrganizationUncheckedUpdateManyInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKeyHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -338,7 +326,6 @@ export type OrganizationCountOrderByAggregateInput = {
   name?: Prisma.SortOrder
   slug?: Prisma.SortOrder
   description?: Prisma.SortOrder
-  apiKeyHash?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -348,7 +335,6 @@ export type OrganizationMaxOrderByAggregateInput = {
   name?: Prisma.SortOrder
   slug?: Prisma.SortOrder
   description?: Prisma.SortOrder
-  apiKeyHash?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -358,7 +344,6 @@ export type OrganizationMinOrderByAggregateInput = {
   name?: Prisma.SortOrder
   slug?: Prisma.SortOrder
   description?: Prisma.SortOrder
-  apiKeyHash?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -415,14 +400,28 @@ export type OrganizationUpdateOneRequiredWithoutIncidentsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.OrganizationUpdateToOneWithWhereWithoutIncidentsInput, Prisma.OrganizationUpdateWithoutIncidentsInput>, Prisma.OrganizationUncheckedUpdateWithoutIncidentsInput>
 }
 
+export type OrganizationCreateNestedOneWithoutApiKeyInput = {
+  create?: Prisma.XOR<Prisma.OrganizationCreateWithoutApiKeyInput, Prisma.OrganizationUncheckedCreateWithoutApiKeyInput>
+  connectOrCreate?: Prisma.OrganizationCreateOrConnectWithoutApiKeyInput
+  connect?: Prisma.OrganizationWhereUniqueInput
+}
+
+export type OrganizationUpdateOneRequiredWithoutApiKeyNestedInput = {
+  create?: Prisma.XOR<Prisma.OrganizationCreateWithoutApiKeyInput, Prisma.OrganizationUncheckedCreateWithoutApiKeyInput>
+  connectOrCreate?: Prisma.OrganizationCreateOrConnectWithoutApiKeyInput
+  upsert?: Prisma.OrganizationUpsertWithoutApiKeyInput
+  connect?: Prisma.OrganizationWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.OrganizationUpdateToOneWithWhereWithoutApiKeyInput, Prisma.OrganizationUpdateWithoutApiKeyInput>, Prisma.OrganizationUncheckedUpdateWithoutApiKeyInput>
+}
+
 export type OrganizationCreateWithoutUsersInput = {
   id?: string
   name: string
   slug: string
   description?: string | null
-  apiKeyHash?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  apiKey?: Prisma.ApiKeyCreateNestedManyWithoutOrganizationInput
   incidents?: Prisma.IncidentCreateNestedManyWithoutOrganizationInput
 }
 
@@ -431,9 +430,9 @@ export type OrganizationUncheckedCreateWithoutUsersInput = {
   name: string
   slug: string
   description?: string | null
-  apiKeyHash?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  apiKey?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutOrganizationInput
   incidents?: Prisma.IncidentUncheckedCreateNestedManyWithoutOrganizationInput
 }
 
@@ -458,9 +457,9 @@ export type OrganizationUpdateWithoutUsersInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKeyHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  apiKey?: Prisma.ApiKeyUpdateManyWithoutOrganizationNestedInput
   incidents?: Prisma.IncidentUpdateManyWithoutOrganizationNestedInput
 }
 
@@ -469,9 +468,9 @@ export type OrganizationUncheckedUpdateWithoutUsersInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKeyHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  apiKey?: Prisma.ApiKeyUncheckedUpdateManyWithoutOrganizationNestedInput
   incidents?: Prisma.IncidentUncheckedUpdateManyWithoutOrganizationNestedInput
 }
 
@@ -480,9 +479,9 @@ export type OrganizationCreateWithoutIncidentsInput = {
   name: string
   slug: string
   description?: string | null
-  apiKeyHash?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  apiKey?: Prisma.ApiKeyCreateNestedManyWithoutOrganizationInput
   users?: Prisma.UserCreateNestedManyWithoutOrganizationInput
 }
 
@@ -491,9 +490,9 @@ export type OrganizationUncheckedCreateWithoutIncidentsInput = {
   name: string
   slug: string
   description?: string | null
-  apiKeyHash?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  apiKey?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutOrganizationInput
   users?: Prisma.UserUncheckedCreateNestedManyWithoutOrganizationInput
 }
 
@@ -518,9 +517,9 @@ export type OrganizationUpdateWithoutIncidentsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKeyHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  apiKey?: Prisma.ApiKeyUpdateManyWithoutOrganizationNestedInput
   users?: Prisma.UserUpdateManyWithoutOrganizationNestedInput
 }
 
@@ -529,10 +528,70 @@ export type OrganizationUncheckedUpdateWithoutIncidentsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKeyHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  apiKey?: Prisma.ApiKeyUncheckedUpdateManyWithoutOrganizationNestedInput
+  users?: Prisma.UserUncheckedUpdateManyWithoutOrganizationNestedInput
+}
+
+export type OrganizationCreateWithoutApiKeyInput = {
+  id?: string
+  name: string
+  slug: string
+  description?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  users?: Prisma.UserCreateNestedManyWithoutOrganizationInput
+  incidents?: Prisma.IncidentCreateNestedManyWithoutOrganizationInput
+}
+
+export type OrganizationUncheckedCreateWithoutApiKeyInput = {
+  id?: string
+  name: string
+  slug: string
+  description?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  users?: Prisma.UserUncheckedCreateNestedManyWithoutOrganizationInput
+  incidents?: Prisma.IncidentUncheckedCreateNestedManyWithoutOrganizationInput
+}
+
+export type OrganizationCreateOrConnectWithoutApiKeyInput = {
+  where: Prisma.OrganizationWhereUniqueInput
+  create: Prisma.XOR<Prisma.OrganizationCreateWithoutApiKeyInput, Prisma.OrganizationUncheckedCreateWithoutApiKeyInput>
+}
+
+export type OrganizationUpsertWithoutApiKeyInput = {
+  update: Prisma.XOR<Prisma.OrganizationUpdateWithoutApiKeyInput, Prisma.OrganizationUncheckedUpdateWithoutApiKeyInput>
+  create: Prisma.XOR<Prisma.OrganizationCreateWithoutApiKeyInput, Prisma.OrganizationUncheckedCreateWithoutApiKeyInput>
+  where?: Prisma.OrganizationWhereInput
+}
+
+export type OrganizationUpdateToOneWithWhereWithoutApiKeyInput = {
+  where?: Prisma.OrganizationWhereInput
+  data: Prisma.XOR<Prisma.OrganizationUpdateWithoutApiKeyInput, Prisma.OrganizationUncheckedUpdateWithoutApiKeyInput>
+}
+
+export type OrganizationUpdateWithoutApiKeyInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  users?: Prisma.UserUpdateManyWithoutOrganizationNestedInput
+  incidents?: Prisma.IncidentUpdateManyWithoutOrganizationNestedInput
+}
+
+export type OrganizationUncheckedUpdateWithoutApiKeyInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   users?: Prisma.UserUncheckedUpdateManyWithoutOrganizationNestedInput
+  incidents?: Prisma.IncidentUncheckedUpdateManyWithoutOrganizationNestedInput
 }
 
 
@@ -541,11 +600,13 @@ export type OrganizationUncheckedUpdateWithoutIncidentsInput = {
  */
 
 export type OrganizationCountOutputType = {
+  apiKey: number
   users: number
   incidents: number
 }
 
 export type OrganizationCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  apiKey?: boolean | OrganizationCountOutputTypeCountApiKeyArgs
   users?: boolean | OrganizationCountOutputTypeCountUsersArgs
   incidents?: boolean | OrganizationCountOutputTypeCountIncidentsArgs
 }
@@ -558,6 +619,13 @@ export type OrganizationCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types
    * Select specific fields to fetch from the OrganizationCountOutputType
    */
   select?: Prisma.OrganizationCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * OrganizationCountOutputType without action
+ */
+export type OrganizationCountOutputTypeCountApiKeyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ApiKeyWhereInput
 }
 
 /**
@@ -580,9 +648,9 @@ export type OrganizationSelect<ExtArgs extends runtime.Types.Extensions.Internal
   name?: boolean
   slug?: boolean
   description?: boolean
-  apiKeyHash?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  apiKey?: boolean | Prisma.Organization$apiKeyArgs<ExtArgs>
   users?: boolean | Prisma.Organization$usersArgs<ExtArgs>
   incidents?: boolean | Prisma.Organization$incidentsArgs<ExtArgs>
   _count?: boolean | Prisma.OrganizationCountOutputTypeDefaultArgs<ExtArgs>
@@ -593,7 +661,6 @@ export type OrganizationSelectCreateManyAndReturn<ExtArgs extends runtime.Types.
   name?: boolean
   slug?: boolean
   description?: boolean
-  apiKeyHash?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["organization"]>
@@ -603,7 +670,6 @@ export type OrganizationSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.
   name?: boolean
   slug?: boolean
   description?: boolean
-  apiKeyHash?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["organization"]>
@@ -613,13 +679,13 @@ export type OrganizationSelectScalar = {
   name?: boolean
   slug?: boolean
   description?: boolean
-  apiKeyHash?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type OrganizationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "slug" | "description" | "apiKeyHash" | "createdAt" | "updatedAt", ExtArgs["result"]["organization"]>
+export type OrganizationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "slug" | "description" | "createdAt" | "updatedAt", ExtArgs["result"]["organization"]>
 export type OrganizationInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  apiKey?: boolean | Prisma.Organization$apiKeyArgs<ExtArgs>
   users?: boolean | Prisma.Organization$usersArgs<ExtArgs>
   incidents?: boolean | Prisma.Organization$incidentsArgs<ExtArgs>
   _count?: boolean | Prisma.OrganizationCountOutputTypeDefaultArgs<ExtArgs>
@@ -630,6 +696,7 @@ export type OrganizationIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types
 export type $OrganizationPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Organization"
   objects: {
+    apiKey: Prisma.$ApiKeyPayload<ExtArgs>[]
     users: Prisma.$UserPayload<ExtArgs>[]
     incidents: Prisma.$IncidentPayload<ExtArgs>[]
   }
@@ -638,7 +705,6 @@ export type $OrganizationPayload<ExtArgs extends runtime.Types.Extensions.Intern
     name: string
     slug: string
     description: string | null
-    apiKeyHash: string | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["organization"]>
@@ -1035,6 +1101,7 @@ readonly fields: OrganizationFieldRefs;
  */
 export interface Prisma__OrganizationClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  apiKey<T extends Prisma.Organization$apiKeyArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Organization$apiKeyArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ApiKeyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   users<T extends Prisma.Organization$usersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Organization$usersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   incidents<T extends Prisma.Organization$incidentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Organization$incidentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$IncidentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
@@ -1070,7 +1137,6 @@ export interface OrganizationFieldRefs {
   readonly name: Prisma.FieldRef<"Organization", 'String'>
   readonly slug: Prisma.FieldRef<"Organization", 'String'>
   readonly description: Prisma.FieldRef<"Organization", 'String'>
-  readonly apiKeyHash: Prisma.FieldRef<"Organization", 'String'>
   readonly createdAt: Prisma.FieldRef<"Organization", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Organization", 'DateTime'>
 }
@@ -1463,6 +1529,30 @@ export type OrganizationDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.
    * Limit how many Organizations to delete.
    */
   limit?: number
+}
+
+/**
+ * Organization.apiKey
+ */
+export type Organization$apiKeyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ApiKey
+   */
+  select?: Prisma.ApiKeySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ApiKey
+   */
+  omit?: Prisma.ApiKeyOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ApiKeyInclude<ExtArgs> | null
+  where?: Prisma.ApiKeyWhereInput
+  orderBy?: Prisma.ApiKeyOrderByWithRelationInput | Prisma.ApiKeyOrderByWithRelationInput[]
+  cursor?: Prisma.ApiKeyWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ApiKeyScalarFieldEnum | Prisma.ApiKeyScalarFieldEnum[]
 }
 
 /**

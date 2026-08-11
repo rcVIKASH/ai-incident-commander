@@ -12,7 +12,7 @@ model Organization {
   name        String
   slug        String   @unique
   description String?
-  apiKeyHash  String?  @unique
+  apiKey      ApiKey[]
   users       User[]
   incidents   Incident[]
   createdAt   DateTime @default(now())
@@ -103,4 +103,19 @@ model IncidentEvent {
   incident   Incident          @relation(fields: [incidentId], references: [id], onDelete: Cascade)
 
   @@index([incidentId, timestamp])
+}
+
+model ApiKey {
+  id             String       @id @default(cuid())
+  name           String
+  keyHash        String       @unique
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  createdAt      DateTime     @default(now())
+  lastUsedAt     DateTime?
+  expiresAt      DateTime?
+  revokedAt      DateTime?
+
+  @@index([organizationId])
 }
