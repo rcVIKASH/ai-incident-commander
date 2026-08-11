@@ -1,6 +1,6 @@
 generator client {
   provider = "prisma-client"
-  output   = "../generated/prisma"
+  output   = "../app/db/generated/prisma"
 }
 
 datasource db {
@@ -10,10 +10,19 @@ datasource db {
 model Organization {
   id          String   @id @default(cuid())
   name        String
+  slug        String   @unique
   description String?
+  apiKeyHash  String?  @unique
   users       User[]
+  incidents   Incident[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+enum UserRole {
+  OWNER
+  ADMIN
+  MEMBER
 }
 
 model User {
@@ -22,6 +31,7 @@ model User {
   password       String
   firstName      String
   lastName       String
+  role           UserRole      @default(MEMBER)
   organizationId String?
   organization   Organization? @relation(fields: [organizationId], references: [id])
   createdAt      DateTime      @default(now())
@@ -53,6 +63,9 @@ enum IncidentEventType {
 
 model Incident {
   id              String         @id @default(cuid())
+  organizationId  String
+  organization    Organization   @relation(fields: [organizationId], references: [id])
+
   externalAlertId String?
   service         String
   severity        String
@@ -71,10 +84,10 @@ model Incident {
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
 
-  @@index([status])
+  @@unique([organizationId, externalAlertId])
+  @@index([organizationId, status])
   @@index([service])
   @@index([severity])
-  @@index([externalAlertId])
   @@index([createdAt])
 }
 
