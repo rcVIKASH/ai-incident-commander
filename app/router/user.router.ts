@@ -18,4 +18,6 @@ userRouter.post("/update/:id", authMiddleware, updateUser);
 // Delete user routes (requires authentication)
 userRouter.delete("/delete/:id", authMiddleware, deleteUser);
 
+
 export default userRouter;
+

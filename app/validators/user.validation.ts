@@ -14,8 +14,6 @@ export const loginSchema = z.object({
 });
 
 
-export type SignupInput = z.infer<typeof signupSchema>;
-export type LoginInput = z.infer<typeof loginSchema>;
 
 export const updateUserSchema = z.object({
   firstName: z.string().min(2).max(28).optional(),
@@ -23,5 +21,8 @@ export const updateUserSchema = z.object({
   email: z.email().optional(),
   password: z.string().min(6).max(40).optional(),
 });
+
+export type SignupInput = z.infer<typeof signupSchema>;
+export type LoginInput = z.infer<typeof loginSchema>;
 
 export type UpdateUserInput = z.infer<typeof updateUserSchema>;
