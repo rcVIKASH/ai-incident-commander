@@ -77,7 +77,7 @@ export const userLogin = wrapAsync(async (req, res) => {
   }
 
   // generate JWT token
-  const token = generateToken(user.id, user.role);
+  const token = generateToken(user.id, user.role, user.organizationId);
 
   // set token in cookie
   res.cookie("token", token, {
@@ -269,4 +269,13 @@ export const deleteUser = wrapAsync(async (req, res) => {
   });
 });
 
+export const userLogout = wrapAsync(async (req, res) => {
+  // Clear the token cookie
+  res.clearCookie("token");
 
+  // Return success response
+  res.status(200).json({
+    success: true,
+    message: "User logged out successfully",
+  });
+});

@@ -6,7 +6,7 @@ export const generateApiKeySchema = z.object({
     .trim()
     .min(1, "Key name cannot be empty")
     .max(100, "Key name cannot exceed 100 characters"),
-  organizationId: z.string({ message: "Organization ID is required" }),
+  organizationId: z.string().optional(),
   expiresInDays: z.number().positive().optional(),
 });
 

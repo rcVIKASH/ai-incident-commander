@@ -1,21 +1,24 @@
 import express, { Request, Response, NextFunction } from "express";
+import cookieParser from "cookie-parser";
 import ExpressError from "./utils/expressError.js";
 import userRouter from "./router/user.router.js";
 import incidentRouter from "./router/incident.router.js";
 import organizationRouter from "./router/organization.router.js";
 import apiKeyRouter from "./router/apiKey.router.js";
+import webhookRouter from "./router/webhook.router.js";
 
 const app = express();
 
 // middleware
 app.use(express.json());
+app.use(cookieParser());
 
 // routes
 app.use("/api/users", userRouter);
 app.use("/api/incidents", incidentRouter);
 app.use("/api/organizations", organizationRouter);
 app.use("/api/api-keys", apiKeyRouter);
-
+app.use("/api/webhooks", webhookRouter);
 
 // 404 handler — must come AFTER all routes
 app.use((req: Request, res: Response, next: NextFunction) => {

@@ -49,8 +49,13 @@ const authMiddleware = wrapAsync(
       throw new ExpressError("Unauthorized access: User not found", 401);
     }
 
-    // Attach authenticated user information to request
-    req.user = decoded;
+    // Establish DB as single source of truth for user authorization context
+    req.user = {
+      userId: user.id,
+      email: user.email,
+      role: user.role,
+      organizationId: user.organizationId,
+    };
 
     next();
   },
