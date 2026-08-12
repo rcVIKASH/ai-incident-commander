@@ -107,9 +107,9 @@ export const userLogin = wrapAsync(async (req, res) => {
 
 export const updateUser = wrapAsync(async (req, res) => {
   // 1. Determine target user ID
-  const userId = req.params.id || req.user?.userId || req.body.id;
+  const userId = req.user?.userId;
 
-  if (!userId) {
+  if (!userId && typeof userId !== "string") {
     throw new ExpressError("User ID is required", 400);
   }
 

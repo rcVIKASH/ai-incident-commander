@@ -12,10 +12,10 @@ const userRouter = Router();
 
 userRouter.post("/signup", userSignup);
 userRouter.post("/login", userLogin);
-userRouter.post("/logout", userLogout);
+userRouter.post("/logout", authMiddleware,userLogout);
 
 // Update user routes (requires authentication)
-userRouter.post("/update/:id", authMiddleware, updateUser);
+userRouter.post("/update", authMiddleware, updateUser);
 
 // Delete user routes (requires authentication)
 userRouter.delete("/delete/:id", authMiddleware, deleteUser);
