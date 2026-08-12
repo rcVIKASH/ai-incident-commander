@@ -172,28 +172,97 @@ export const updateUser = wrapAsync(async (req, res) => {
 });
 
 export const deleteUser = wrapAsync(async (req, res) => {
-  // 1. Determine target user ID
-  const userId = req.params.id || req.user?.userId || req.body.id;
+  const targetUserId = req.params.id;
 
-  if (!userId) {
+  if (!targetUserId || typeof targetUserId !== "string") {
     throw new ExpressError("User ID is required", 400);
   }
 
-  // 2. Check if user exists
-  const existingUser = await prisma.user.findUnique({
-    where: { id: userId },
+  const requesterId = req.user?.userId || req.body.requesterId;
+
+  if (!requesterId || typeof requesterId !== "string") {
+    throw new ExpressError("Unauthorized access", 401);
+  }
+
+  // 1. Get requester
+  const requester = await prisma.user.findUnique({
+    where: {
+      id: requesterId,
+    },
   });
 
-  if (!existingUser) {
+  if (!requester) {
+    throw new ExpressError("Requester not found", 404);
+  }
+
+  // 2. Only OWNER and ADMIN can delete users
+  if (
+    requester.role !== "OWNER" &&
+    requester.role !== "ADMIN"
+  ) {
+    throw new ExpressError(
+      "You do not have permission to delete users",
+      403
+    );
+  }
+
+  // 3. Get target user
+  const targetUser = await prisma.user.findUnique({
+    where: {
+      id: targetUserId,
+    },
+  });
+
+  if (!targetUser) {
     throw new ExpressError("User not found", 404);
   }
 
-  // 3. Delete user from database
+  // 4. Make sure target belongs to same organization
+  if (
+    !requester.organizationId ||
+    requester.organizationId !== targetUser.organizationId
+  ) {
+    throw new ExpressError(
+      "You cannot delete a user from another organization",
+      403
+    );
+  }
+
+  // 5. Never allow OWNER to be deleted
+  if (targetUser.role === "OWNER") {
+    throw new ExpressError(
+      "Cannot delete the organization OWNER. Assign ownership to another user first.",
+      403
+    );
+  }
+
+  // 6. ADMIN cannot delete another ADMIN
+  if (
+    requester.role === "ADMIN" &&
+    targetUser.role === "ADMIN"
+  ) {
+    throw new ExpressError(
+      "ADMIN cannot delete another ADMIN",
+      403
+    );
+  }
+
+  // 7. Prevent deleting yourself
+  if (requester.id === targetUser.id) {
+    throw new ExpressError(
+      "You cannot delete yourself",
+      403
+    );
+  }
+
+  // 8. Delete user
   await prisma.user.delete({
-    where: { id: userId },
+    where: {
+      id: targetUserId,
+    },
   });
 
-  // 4. Return success response
+  // 9. Response
   res.status(200).json({
     success: true,
     message: "User deleted successfully",

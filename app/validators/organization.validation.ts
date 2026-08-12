@@ -28,3 +28,21 @@ export type CreateOrganizationInput = z.infer<typeof createOrganizationSchema>;
 export const updateOrganizationSchema = createOrganizationSchema.partial();
 
 export type UpdateOrganizationInput = z.infer<typeof updateOrganizationSchema>;
+
+export const updateUserRoleSchema = z.object({
+  role: z.enum(["ADMIN", "MEMBER"], {
+    message: "Role must be either ADMIN or MEMBER",
+  }),
+});
+
+export type UpdateUserRoleInput = z.infer<typeof updateUserRoleSchema>;
+
+export const updateOwnerSchema = z.object({
+  newOwnerId: z
+    .string({ message: "New owner ID is required" })
+    .trim()
+    .min(1, "New owner ID cannot be empty"),
+});
+
+export type UpdateOwnerInput = z.infer<typeof updateOwnerSchema>;
+
