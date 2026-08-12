@@ -83,7 +83,7 @@ export const userLogin = wrapAsync(async (req, res) => {
   res.cookie("token", token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
   });
 
@@ -271,7 +271,11 @@ export const deleteUser = wrapAsync(async (req, res) => {
 
 export const userLogout = wrapAsync(async (req, res) => {
   // Clear the token cookie
-  res.clearCookie("token");
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+  });
 
   // Return success response
   res.status(200).json({
