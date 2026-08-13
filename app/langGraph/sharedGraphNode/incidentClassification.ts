@@ -91,17 +91,8 @@ Determine:
    - Only use tags supported by the input.
 
 9. keySignals
-   - Extract important factual values from the alert.
-   - Examples:
-     latencyMs
-     thresholdMs
-     duration
-     region
-     errorRate
-     statusCode
-     endpoint
-     deploymentVersion
-   - Preserve the original values whenever possible.
+   - Array of objects containing key and value strings extracted directly from the alert.
+   - Example: [{ "key": "latencyMs", "value": "2450" }, { "key": "thresholdMs", "value": "2000" }, { "key": "duration", "value": "5 minutes" }, { "key": "region", "value": "us-east-1" }]
    - Do NOT invent missing values.
 
 IMPORTANT RULES:

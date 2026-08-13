@@ -38,6 +38,19 @@ export const rawIncidentAlertSchema = z.object({
 
 export type RawIncidentAlertInput = z.infer<typeof rawIncidentAlertSchema>;
 
+export const keySignalSchema = z.object({
+  key: z
+    .string()
+    .describe(
+      "Signal name extracted directly from alert input e.g. latencyMs, thresholdMs, duration, region",
+    ),
+  value: z
+    .string()
+    .describe("Exact value from the alert e.g. '2450', '2000', 'us-east-1'"),
+});
+
+export type KeySignal = z.infer<typeof keySignalSchema>;
+
 /**
  * Schema for structured incident classification output
  */
@@ -61,7 +74,7 @@ export const incidentClassificationSchema = z.object({
     .min(1, "Summary is required")
     .trim()
     .describe(
-      "Concise but information-rich summary preserving important facts from the alert",
+      "Concise but information-rich summary preserving important facts from the alert without inventing consequences like 'causing login failures'",
     ),
 
   confidence: z
@@ -90,10 +103,10 @@ export const incidentClassificationSchema = z.object({
     .describe("Useful keywords for downstream filtering"),
 
   keySignals: z
-    .record(z.string(), z.any())
-    .default({})
+    .array(keySignalSchema)
+    .default([])
     .describe(
-      "Important factual signals extracted directly from the alert, such as latency, threshold, duration, region, error rate, status code, affected endpoint, or deployment version. Do not invent values.",
+      "List of key factual signals extracted directly from the alert input without inventing values.",
     ),
 });
 
