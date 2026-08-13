@@ -4,8 +4,12 @@ import { IncidentClassification } from "../../validators/incidentClassification.
 export interface IncidentInput {
   service: string;
   message: string;
-  timestamp?: string;
   severity?: string;
+  timestamp?: string;
+  title?: string;
+  alertId?: string;
+  type?: string;
+  metadata?: Record<string, any>;
 }
 
 export const IncidentState = Annotation.Root({
