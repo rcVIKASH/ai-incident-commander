@@ -9,3 +9,5 @@ if (!connectionString) {
 }
 
 export const checkpointer = PostgresSaver.fromConnString(connectionString);
+
+// await checkpointer.setup();
