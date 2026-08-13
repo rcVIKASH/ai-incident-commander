@@ -1,4 +1,4 @@
-import  z  from "zod";
+import z from "zod";
 
 export const INCIDENT_TYPES = [
   "APPLICATION_ERROR",
@@ -39,24 +39,67 @@ export const rawIncidentAlertSchema = z.object({
 export type RawIncidentAlertInput = z.infer<typeof rawIncidentAlertSchema>;
 
 /**
- * Schema for structured incident classification output from Step 1 Classifier
+ * Schema for structured incident classification output
  */
 export const incidentClassificationSchema = z.object({
-  incidentType: incidentTypeSchema.describe("High-level classification of what kind of incident this is"),
-  severity: incidentSeveritySchema.describe("Severity level of the incident: LOW, MEDIUM, HIGH, or CRITICAL"),
-  service: z.string().min(1, "Service name is required").trim().describe("Target service name affected"),
-  summary: z.string().min(1, "Summary is required").trim().describe("Brief description/summary of the incident"),
+  incidentType: incidentTypeSchema.describe(
+    "High-level classification of what kind of incident this is",
+  ),
+
+  severity: incidentSeveritySchema.describe(
+    "Severity level of the incident: LOW, MEDIUM, HIGH, or CRITICAL",
+  ),
+
+  service: z
+    .string()
+    .min(1, "Service name is required")
+    .trim()
+    .describe("The exact affected service name from the input"),
+
+  summary: z
+    .string()
+    .min(1, "Summary is required")
+    .trim()
+    .describe(
+      "Concise but information-rich summary preserving important facts from the alert",
+    ),
+
   confidence: z
     .number()
     .min(0, "Confidence must be at least 0")
     .max(1, "Confidence must be at most 1")
     .describe("Confidence score between 0.0 and 1.0"),
-  likelyCategory: z.string().trim().optional().describe("More specific sub-category e.g. API_FAILURE, AUTH_DOWN"),
-  reasoning: z.string().trim().optional().describe("Explanation for why AI classified the incident this way"),
-  tags: z.array(z.string()).default([]).describe("Keywords or tags for downstream filtering"),
+
+  likelyCategory: z
+    .string()
+    .trim()
+    .optional()
+    .describe(
+      "Specific sub-category such as API_LATENCY, DATABASE_CONNECTION, AUTH_FAILURE",
+    ),
+
+  reasoning: z
+    .string()
+    .trim()
+    .optional()
+    .describe("Brief evidence-based explanation for the classification"),
+
+  tags: z
+    .array(z.string())
+    .default([])
+    .describe("Useful keywords for downstream filtering"),
+
+  keySignals: z
+    .record(z.string(), z.any())
+    .default({})
+    .describe(
+      "Important factual signals extracted directly from the alert, such as latency, threshold, duration, region, error rate, status code, affected endpoint, or deployment version. Do not invent values.",
+    ),
 });
 
-export type IncidentClassification = z.infer<typeof incidentClassificationSchema>;
+export type IncidentClassification = z.infer<
+  typeof incidentClassificationSchema
+>;
 
 /**
  * Safely validate structured incident classification data

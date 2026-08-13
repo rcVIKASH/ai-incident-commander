@@ -10,14 +10,14 @@ import {
 // Structured Model
 // --------------------------------------------------
 const structuredModel = model1.withStructuredOutput(
-  incidentClassificationSchema
+  incidentClassificationSchema,
 );
 
 // --------------------------------------------------
 // Classification Node
 // --------------------------------------------------
 const classifyIncident = async (
-  state: IncidentStateType
+  state: IncidentStateType,
 ): Promise<Partial<IncidentStateType>> => {
   const incident = state.incident;
 
@@ -34,9 +34,11 @@ const classifyIncident = async (
         content: `
 You are an AI Incident Classification Agent for AI Incident Commander.
 
-Your ONLY responsibility is to classify the incoming incident:
+Your responsibility is to classify and summarize the incoming incident while preserving important factual information from the original alert.
 
-"What kind of incident is this?"
+Answer:
+
+"What kind of incident is this, and what important evidence does the alert contain?"
 
 Determine:
 
@@ -57,27 +59,67 @@ Determine:
    - CRITICAL
 
 3. service
-   - affected service name
+   - Use the EXACT service name provided in the input.
+   - Never replace it with another service.
 
 4. summary
-   - clear summary of what happened
+   - Give a concise but information-rich summary.
+   - Preserve important facts such as:
+     thresholds, measured values, duration, region,
+     error messages, status codes, affected endpoints,
+     deployment versions, or other relevant metadata.
 
 5. confidence
-   - value between 0.0 and 1.0
+   - Value between 0.0 and 1.0.
 
 6. likelyCategory
-   - optional sub-category
-   - examples: API_FAILURE, AUTH_DOWN
+   - Specific sub-category when supported by the alert.
+   - Examples:
+     API_LATENCY
+     API_FAILURE
+     DATABASE_CONNECTION
+     AUTH_FAILURE
+     MEMORY_EXHAUSTION
+     DEPLOYMENT_REGRESSION
 
 7. reasoning
-   - brief explanation for this classification
+   - Briefly explain which evidence from the alert supports the classification.
+   - Do not introduce facts that are not present in the alert.
 
-DO NOT:
-- diagnose root cause
-- suggest remediation
-- execute actions
-- invent unverified details
-        `.trim(),
+8. tags
+   - Extract useful keywords from the incident.
+   - Only use tags supported by the input.
+
+9. keySignals
+   - Extract important factual values from the alert.
+   - Examples:
+     latencyMs
+     thresholdMs
+     duration
+     region
+     errorRate
+     statusCode
+     endpoint
+     deploymentVersion
+   - Preserve the original values whenever possible.
+   - Do NOT invent missing values.
+
+IMPORTANT RULES:
+
+- Preserve factual information from the original incident.
+- The original incident is the source of truth.
+- Do not change the service name.
+- Do not invent affected users, failures, root causes, endpoints, systems, or symptoms.
+- Do not assume that a latency spike caused failures unless the alert explicitly says so.
+- Do not assume an API, database, login system, or other component unless the input supports it.
+- Do not diagnose root cause.
+- Do not suggest remediation.
+- Do not execute actions.
+- If information is missing, leave it unknown rather than guessing.
+- Prefer evidence from the input over assumptions.
+
+Your output should provide useful classification information for a downstream diagnosis agent.
+`.trim(),
       },
       {
         role: "user",
