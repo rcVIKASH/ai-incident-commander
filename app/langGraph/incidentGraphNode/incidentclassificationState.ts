@@ -12,10 +12,13 @@ export interface IncidentInput {
   metadata?: Record<string, any>;
 }
 
-export const IncidentState = Annotation.Root({
+/**
+ * Dedicated State schema for the Incident Classification subgraph node
+ */
+export const ClassificationState = Annotation.Root({
   incident: Annotation<IncidentInput>(),
   classification: Annotation<IncidentClassification | undefined>(),
   error: Annotation<string | undefined>(),
 });
 
-export type IncidentStateType = typeof IncidentState.State;
+export type ClassificationStateType = typeof ClassificationState.State;

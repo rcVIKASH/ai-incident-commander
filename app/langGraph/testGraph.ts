@@ -1,14 +1,14 @@
 import "dotenv/config";
 import { mainGraph } from "./mainGraph.js";
-import { incidentClassification } from "./sharedGraphNode/incidentClassification.js";
+import { evidenceCollector } from "./evidenceGraphNode/evidenceCollector.js";
 
 async function testGraphNode() {
   console.log("--------------------------------------------------");
-  console.log("🚀 Testing LangGraph Incident Classification Subgraph");
+  console.log("🚀 Testing LangGraph Incident Classification + LLM-Driven Evidence Collector");
   console.log("--------------------------------------------------\n");
 
   const sampleIncident = {
-    alertId: "alert-101",
+    alertId: "alert-otel-202",
     service: "payment-gateway",
     severity: "HIGH",
     type: "LATENCY_SPIKE",
@@ -24,21 +24,21 @@ async function testGraphNode() {
   console.log("📥 1. Sample Alert Input:");
   console.log(JSON.stringify(sampleIncident, null, 2));
 
-  console.log("\n⚡ 2. Standalone Subgraph Invoke (incidentClassification.invoke):");
+  console.log("\n⚡ 2. Testing LLM-Driven Evidence Collector Subgraph (LLM selects tools):");
   try {
-    const directResult = await incidentClassification.invoke({
+    const evidenceResult = await evidenceCollector.invoke({
       incident: sampleIncident,
     });
-    console.log("✅ Classification Subgraph Output:");
-    console.dir(directResult, { depth: null });
+    console.log("✅ Processed Telemetry Evidence Summary:");
+    console.log(evidenceResult.processedEvidence?.summaryText);
   } catch (err: any) {
-    console.error("❌ Classification Subgraph Error:", err.message);
+    console.error("❌ Evidence Collector Error:", err.message);
   }
 
-  console.log("\n🔄 3. Full Main Graph Invoke (mainGraph.invoke with Postgres Checkpointer / STM):");
+  console.log("\n🔄 3. Full Main Graph Invoke (Classification -> LLM Evidence Agent -> Postgres Checkpointer):");
   const config = {
     configurable: {
-      thread_id: "thread-alert-101",
+      thread_id: `thread-otel-${Date.now()}`,
     },
   };
 
@@ -49,13 +49,18 @@ async function testGraphNode() {
       },
       config
     );
-    console.log("✅ Main Graph Execution Result:");
-    console.dir(graphResult, { depth: null });
+    console.log("\n✅ Main Graph Execution Result:");
+    console.log("\n--- Classification Output ---");
+    console.dir(graphResult.classification, { depth: null });
+
+    console.log("\n--- Calculated Telemetry Summary ---");
+    console.log(graphResult.processedEvidence?.summaryText);
 
     console.log("\n🧠 4. Retrieving State from Postgres Checkpointer (Short-Term Memory):");
     const storedState = await mainGraph.getState(config);
-    console.log("✅ Stored State from Postgres:");
-    console.dir(storedState, { depth: null });
+    console.log("✅ Checkpointer State Stored Successfully!");
+    console.log(`Thread ID: ${config.configurable.thread_id}`);
+    console.log(`Next Nodes: ${storedState.next.length === 0 ? "END" : storedState.next.join(", ")}`);
   } catch (err: any) {
     console.error("❌ Main Graph Invoke Error:", err.message);
   }

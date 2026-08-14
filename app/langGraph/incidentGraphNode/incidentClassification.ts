@@ -1,6 +1,9 @@
 import { START, END, StateGraph } from "@langchain/langgraph";
 import { model1 } from "../llm.js";
-import { IncidentState, IncidentStateType } from "../state/incidentState.js";
+import {
+  ClassificationState,
+  ClassificationStateType,
+} from "./incidentclassificationState.js";
 import {
   incidentClassificationSchema,
   IncidentClassification,
@@ -17,8 +20,8 @@ const structuredModel = model1.withStructuredOutput(
 // Classification Node
 // --------------------------------------------------
 const classifyIncident = async (
-  state: IncidentStateType,
-): Promise<Partial<IncidentStateType>> => {
+  state: ClassificationStateType,
+): Promise<Partial<ClassificationStateType>> => {
   const incident = state.incident;
 
   if (!incident) {
@@ -131,7 +134,7 @@ Your output should provide useful classification information for a downstream di
 // --------------------------------------------------
 // Classification Subgraph
 // --------------------------------------------------
-const graph = new StateGraph(IncidentState)
+const graph = new StateGraph(ClassificationState)
   .addNode("classifyIncident", classifyIncident)
   .addEdge(START, "classifyIncident")
   .addEdge("classifyIncident", END);
