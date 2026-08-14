@@ -1,23 +1,27 @@
 import { START, END, StateGraph } from "@langchain/langgraph";
 import { ToolNode } from "@langchain/langgraph/prebuilt";
-import { AIMessage, SystemMessage, HumanMessage } from "@langchain/core/messages";
+import {
+  AIMessage,
+  SystemMessage,
+  HumanMessage,
+} from "@langchain/core/messages";
 import { EvidenceState, EvidenceStateType } from "./evidenceState.js";
 import { processEvidence } from "./evidenceProcessor.js";
 import { RawEvidence } from "../../types/evidence.js";
 import { getTelemetryTools } from "../tools/telemetryTools.js";
-import { model1} from "../llm.js";
+import { model4 } from "../llm.js";
 
 // --------------------------------------------------
 // Telemetry Tools & LLM with Tool Binding
 // --------------------------------------------------
 const telemetryTools = getTelemetryTools();
-const modelWithTools = model1.bindTools(telemetryTools);
+const modelWithTools = model4.bindTools(telemetryTools);
 
 // --------------------------------------------------
 // Node 1: Evidence Agent — LLM decides which tools to call
 // --------------------------------------------------
 const evidenceAgent = async (
-  state: EvidenceStateType
+  state: EvidenceStateType,
 ): Promise<Partial<EvidenceStateType>> => {
   const incident = state.incident;
 
@@ -34,10 +38,10 @@ const evidenceAgent = async (
       ? new Date(incident.timestamp)
       : new Date();
     const startTime = new Date(
-      incidentTime.getTime() - 15 * 60 * 1000
+      incidentTime.getTime() - 15 * 60 * 1000,
     ).toISOString();
     const endTime = new Date(
-      incidentTime.getTime() + 5 * 60 * 1000
+      incidentTime.getTime() + 5 * 60 * 1000,
     ).toISOString();
 
     const classification = state.classification;
@@ -75,7 +79,7 @@ IMPORTANT:
 - You may call the same tool multiple times with different parameters if needed.`;
 
     console.log(
-      `🔍 [EvidenceAgent] LLM analyzing incident for service "${service}" to decide which telemetry to collect...`
+      `🔍 [EvidenceAgent] LLM analyzing incident for service "${service}" to decide which telemetry to collect...`,
     );
 
     try {
@@ -89,7 +93,7 @@ IMPORTANT:
 
       const systemMessage = new SystemMessage(systemPrompt);
       const userMessage = new HumanMessage(
-        `Collect the relevant telemetry evidence for this incident:\n${JSON.stringify(incident, null, 2)}`
+        `Collect the relevant telemetry evidence for this incident:\n${JSON.stringify(incident, null, 2)}`,
       );
 
       return {
@@ -98,7 +102,7 @@ IMPORTANT:
     } catch (err: any) {
       console.error(
         `⚠️ [EvidenceAgent] LLM error on initial call, proceeding with empty evidence:`,
-        err?.message?.slice(0, 200) || err
+        err?.message?.slice(0, 200) || err,
       );
       return {
         error: `LLM failed during evidence planning: ${err?.message?.slice(0, 150) || err}`,
@@ -108,7 +112,7 @@ IMPORTANT:
 
   // Subsequent invocations: LLM sees previous messages + tool results
   console.log(
-    `🔄 [EvidenceAgent] LLM reviewing tool results and deciding next action...`
+    `🔄 [EvidenceAgent] LLM reviewing tool results and deciding next action...`,
   );
   try {
     const response = await modelWithTools.invoke(state.messages);
@@ -121,12 +125,14 @@ IMPORTANT:
     // and proceed to processEvidence with whatever tool results we already have
     console.warn(
       `⚠️ [EvidenceAgent] LLM error during tool loop, proceeding to process collected evidence:`,
-      err?.message?.slice(0, 200) || err
+      err?.message?.slice(0, 200) || err,
     );
     // Return an AIMessage with no tool_calls to trigger shouldContinue → processEvidence
     return {
       messages: [
-        new AIMessage("Evidence collection interrupted — processing collected data."),
+        new AIMessage(
+          "Evidence collection interrupted — processing collected data.",
+        ),
       ],
     };
   }
@@ -141,12 +147,12 @@ const toolNode = new ToolNode(telemetryTools, { handleToolErrors: true });
 // Node 3: Process Evidence — extracts raw evidence from tool messages and calculates summary
 // --------------------------------------------------
 const processEvidenceNode = async (
-  state: EvidenceStateType
+  state: EvidenceStateType,
 ): Promise<Partial<EvidenceStateType>> => {
   try {
     // Extract tool results from the message history
     const toolMessages = state.messages.filter(
-      (msg) => msg.getType() === "tool"
+      (msg) => msg.getType() === "tool",
     );
 
     // Parse all tool results into raw evidence
@@ -161,7 +167,7 @@ const processEvidenceNode = async (
         const parsed = JSON.parse(
           typeof toolMsg.content === "string"
             ? toolMsg.content
-            : JSON.stringify(toolMsg.content)
+            : JSON.stringify(toolMsg.content),
         );
 
         if (parsed.error) continue;
@@ -175,7 +181,11 @@ const processEvidenceNode = async (
         if (parsed.traces) {
           rawEvidence.traces.push(...parsed.traces);
         }
-        if (parsed.status && parsed.service && parsed.uptimePercent !== undefined) {
+        if (
+          parsed.status &&
+          parsed.service &&
+          parsed.uptimePercent !== undefined
+        ) {
           rawEvidence.health = parsed;
         }
         if (parsed.deployments) {
@@ -192,7 +202,7 @@ const processEvidenceNode = async (
     const processedEvidence = processEvidence(rawEvidence);
 
     console.log(
-      `✅ [EvidenceAgent] Evidence processed: ${processedEvidence.logs.totalErrors} errors, ${processedEvidence.metrics.length} metrics, ${processedEvidence.traces.failed} trace failures.`
+      `✅ [EvidenceAgent] Evidence processed: ${processedEvidence.logs.totalErrors} errors, ${processedEvidence.metrics.length} metrics, ${processedEvidence.traces.failed} trace failures.`,
     );
 
     return {
@@ -202,7 +212,7 @@ const processEvidenceNode = async (
   } catch (err: any) {
     console.error(
       `❌ [EvidenceAgent] Error processing evidence:`,
-      err?.message || err
+      err?.message || err,
     );
     return {
       error: err?.message || "Failed to process collected evidence",
@@ -217,9 +227,13 @@ const shouldContinue = (state: EvidenceStateType): string => {
   const lastMessage = state.messages[state.messages.length - 1];
 
   // If the last message is an AIMessage with tool_calls, route to tools
-  if (lastMessage instanceof AIMessage && lastMessage.tool_calls && lastMessage.tool_calls.length > 0) {
+  if (
+    lastMessage instanceof AIMessage &&
+    lastMessage.tool_calls &&
+    lastMessage.tool_calls.length > 0
+  ) {
     console.log(
-      `🛠️  [EvidenceAgent] LLM requested ${lastMessage.tool_calls.length} tool call(s): ${lastMessage.tool_calls.map((tc) => tc.name).join(", ")}`
+      `🛠️  [EvidenceAgent] LLM requested ${lastMessage.tool_calls.length} tool call(s): ${lastMessage.tool_calls.map((tc) => tc.name).join(", ")}`,
     );
     return "tools";
   }
