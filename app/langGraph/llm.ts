@@ -17,6 +17,6 @@ export const model3 = new ChatGroq({
 });
 
 export const model4 = new ChatOpenRouter({
-  model: "openai/gpt-5.6-luna",
+  model: "nvidia/nemotron-3-ultra-550b-a55b:free",
   apiKey: process.env.OPENROUTER_API_KEY,
 });

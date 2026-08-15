@@ -27,11 +27,12 @@ export class MockTelemetryProvider implements TelemetryProvider {
         severity: "ERROR",
         message: `HTTP 504 Gateway Timeout while calling upstream dependency /v1/${service}/checkout`,
         attributes: {
-          "http.status_code": "504",
+          "http.status_code": 504,
           "error.type": "GatewayTimeout",
           "net.peer.name": "db-connection-pool",
         },
         traceId: "trace-991204-a8f",
+        spanId: "span-991204-02",
       },
       {
         timestamp: new Date(now.getTime() - 150000).toISOString(),
@@ -39,10 +40,11 @@ export class MockTelemetryProvider implements TelemetryProvider {
         severity: "ERROR",
         message: `HTTP 504 Gateway Timeout while calling upstream dependency /v1/${service}/checkout`,
         attributes: {
-          "http.status_code": "504",
+          "http.status_code": 504,
           "error.type": "GatewayTimeout",
         },
         traceId: "trace-991204-b9c",
+        spanId: "span-991204-04",
       },
       {
         timestamp: new Date(now.getTime() - 100000).toISOString(),
@@ -55,6 +57,7 @@ export class MockTelemetryProvider implements TelemetryProvider {
           "error.type": "PoolExhausted",
         },
         traceId: "trace-991205-c1d",
+        spanId: "span-991205-03",
       },
       {
         timestamp: new Date(now.getTime() - 80000).toISOString(),
@@ -62,7 +65,7 @@ export class MockTelemetryProvider implements TelemetryProvider {
         severity: "WARN",
         message: `High memory pressure detected: GC pause duration exceeds 450ms`,
         attributes: {
-          "system.memory.utilization": "0.92",
+          "system.memory.utilization": 0.92,
         },
       },
       {
@@ -71,7 +74,7 @@ export class MockTelemetryProvider implements TelemetryProvider {
         severity: "ERROR",
         message: `HTTP 504 Gateway Timeout while calling upstream dependency /v1/${service}/checkout`,
         attributes: {
-          "http.status_code": "504",
+          "http.status_code": 504,
           "error.type": "GatewayTimeout",
         },
         traceId: "trace-991206-d2e",
@@ -82,16 +85,26 @@ export class MockTelemetryProvider implements TelemetryProvider {
         severity: "INFO",
         message: `Health check probe succeeded`,
         attributes: {
-          "http.status_code": "200",
+          "http.status_code": 200,
         },
       },
     ];
 
     let result = allLogs;
 
-    // Filter by severities if specified (e.g. ERROR, WARN)
+    // Filter by severities if specified (e.g. ERROR, WARN, INFO, DEBUG, FATAL)
     if (query.severities && query.severities.length > 0) {
       result = result.filter((log) => query.severities!.includes(log.severity));
+    }
+
+    // Filter by traceId if specified
+    if (query.traceId) {
+      result = result.filter((log) => log.traceId === query.traceId);
+    }
+
+    // Filter by spanId if specified
+    if (query.spanId) {
+      result = result.filter((log) => log.spanId === query.spanId);
     }
 
     // Filter by keyword query if specified
@@ -164,18 +177,23 @@ export class MockTelemetryProvider implements TelemetryProvider {
         status: "ERROR",
         spans: [
           {
+            spanId: "span-991204-01",
             service: "api-gateway",
             operation: "POST /v1/payments",
             durationMs: 2450,
             status: "ERROR",
           },
           {
+            spanId: "span-991204-02",
+            parentSpanId: "span-991204-01",
             service,
             operation: "processPayment",
             durationMs: 2400,
             status: "ERROR",
           },
           {
+            spanId: "span-991204-03",
+            parentSpanId: "span-991204-02",
             service: "payment-db",
             operation: "SELECT FOR UPDATE accounts",
             durationMs: 2000,
@@ -192,18 +210,23 @@ export class MockTelemetryProvider implements TelemetryProvider {
         status: "ERROR",
         spans: [
           {
+            spanId: "span-991205-01",
             service: "api-gateway",
             operation: "POST /v1/payments",
             durationMs: 2100,
             status: "ERROR",
           },
           {
+            spanId: "span-991205-02",
+            parentSpanId: "span-991205-01",
             service,
             operation: "processPayment",
             durationMs: 2080,
             status: "ERROR",
           },
           {
+            spanId: "span-991205-03",
+            parentSpanId: "span-991205-02",
             service: "payment-db",
             operation: "SELECT FOR UPDATE accounts",
             durationMs: 2000,
@@ -220,12 +243,15 @@ export class MockTelemetryProvider implements TelemetryProvider {
         status: "OK",
         spans: [
           {
+            spanId: "span-991206-01",
             service: "api-gateway",
             operation: "GET /health",
             durationMs: 140,
             status: "OK",
           },
           {
+            spanId: "span-991206-02",
+            parentSpanId: "span-991206-01",
             service,
             operation: "healthCheck",
             durationMs: 120,
@@ -236,6 +262,9 @@ export class MockTelemetryProvider implements TelemetryProvider {
     ];
 
     let result = allTraces;
+    if (query.traceId) {
+      result = result.filter((t) => t.traceId === query.traceId);
+    }
     if (query.status) {
       result = result.filter((t) => t.status === query.status);
     }

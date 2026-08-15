@@ -21,6 +21,8 @@ export function createGetLogsTool(provider: TelemetryProvider = defaultProvider)
           },
           severities: input.severities,
           keyword: input.keyword,
+          traceId: input.traceId,
+          spanId: input.spanId,
           limit: input.limit ?? 50,
         });
 
@@ -44,10 +46,12 @@ export function createGetLogsTool(provider: TelemetryProvider = defaultProvider)
         startTime: z.string().optional().describe("ISO start timestamp"),
         endTime: z.string().optional().describe("ISO end timestamp"),
         severities: z
-          .array(z.enum(["ERROR", "WARN", "INFO"]))
+          .array(z.enum(["DEBUG", "INFO", "WARN", "ERROR", "FATAL"]))
           .optional()
           .describe("Filter severities e.g. ['ERROR', 'WARN']"),
         keyword: z.string().optional().describe("Optional log message or attribute keyword filter"),
+        traceId: z.string().optional().describe("Correlate logs to a specific OTel traceId"),
+        spanId: z.string().optional().describe("Correlate logs to a specific OTel spanId"),
         limit: z.number().optional().describe("Max number of log records (default 50)"),
         environment: z.string().optional().describe("Environment e.g. production, staging"),
       }),
@@ -116,6 +120,7 @@ export function createGetTracesTool(provider: TelemetryProvider = defaultProvide
             end: input.endTime || new Date().toISOString(),
           },
           status: input.status,
+          traceId: input.traceId,
           limit: input.limit ?? 20,
         });
 
@@ -136,7 +141,8 @@ export function createGetTracesTool(provider: TelemetryProvider = defaultProvide
         "Fetch distributed telemetry trace records and child span error paths for root cause analysis.",
       schema: z.object({
         service: z.string().describe("Target service name"),
-        status: z.enum(["ERROR", "OK"]).optional().describe("Filter trace status"),
+        status: z.enum(["ERROR", "OK", "UNSET"]).optional().describe("Filter trace status"),
+        traceId: z.string().optional().describe("Filter traces by specific OTel traceId"),
         startTime: z.string().optional().describe("ISO start timestamp"),
         endTime: z.string().optional().describe("ISO end timestamp"),
         limit: z.number().optional().describe("Max traces to return (default 20)"),
