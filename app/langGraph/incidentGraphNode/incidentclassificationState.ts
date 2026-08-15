@@ -8,6 +8,8 @@ export interface IncidentInput {
   timestamp?: string;
   title?: string;
   alertId?: string;
+  incidentId?: string;
+  organizationId?: string;
   type?: string;
   metadata?: Record<string, any>;
 }

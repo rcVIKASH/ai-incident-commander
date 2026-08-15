@@ -20,6 +20,8 @@ export const incidentSchema = z.object({
     ])
     .optional(),
   source: z.string(),
+  detectedAt: z.union([z.string(), z.date()]).optional(),
+  startedAt: z.union([z.string(), z.date()]).optional(),
   metadata: z.record(z.string(), z.any()).optional(),
 });
 

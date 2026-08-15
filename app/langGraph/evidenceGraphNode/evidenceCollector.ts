@@ -53,7 +53,8 @@ You have access to an OpenTelemetry (OTLP) data store through these tools.
 
 INCIDENT CONTEXT:
 - Service: ${service}
-- Time Window: ${startTime} to ${endTime}
+- Incident Detection Timestamp (detectedAt): ${incidentTime.toISOString()}
+- Telemetry Time Window: ${startTime} to ${endTime}
 - Alert: ${incident.title || incident.message}
 - Severity: ${incident.severity || "UNKNOWN"}
 ${classification ? `- Classified Type: ${classification.incidentType}` : ""}

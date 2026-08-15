@@ -33,27 +33,44 @@ export async function startIncidentSubscriber(): Promise<void> {
             `\n📥 [RabbitMQ Receiver] Incident event received for service "${incidentPayload.service}" (Org ID: ${incidentPayload.organizationId})`
           );
 
-          // Configure thread_id to Organization ID as requested
+          // Configure thread_id to organizationId:incidentId so distinct investigations do not collide on checkpoint state
           const orgId = incidentPayload.organizationId || "default-org";
+          const incidentId = incidentPayload.id || incidentPayload.externalAlertId || `inc-${Date.now()}`;
+          const threadId = `${orgId}:${incidentId}`;
+
           const config = {
             configurable: {
-              thread_id: orgId,
+              thread_id: threadId,
             },
           };
+
+          // Extract detectedAt/startedAt/timestamp timestamp or fallback to current time
+          const rawTimestamp =
+            incidentPayload.detectedAt ||
+            incidentPayload.startedAt ||
+            incidentPayload.timestamp ||
+            incidentPayload.createdAt;
+
+          const timestampIso = rawTimestamp
+            ? new Date(rawTimestamp).toISOString()
+            : new Date().toISOString();
 
           // Format state input payload for LangGraph
           const incidentInput = {
             alertId: incidentPayload.externalAlertId || incidentPayload.id,
+            incidentId,
+            organizationId: orgId,
             service: incidentPayload.service,
             severity: incidentPayload.severity,
             type: incidentPayload.type,
             title: incidentPayload.title,
             message: incidentPayload.message,
+            timestamp: timestampIso,
             metadata: incidentPayload.metadata,
           };
 
           console.log(
-            `⚡ [RabbitMQ Receiver] Invoking LangGraph mainGraph for Org ID: "${orgId}"...`
+            `⚡ [RabbitMQ Receiver] Invoking LangGraph mainGraph for Thread ID: "${threadId}" (Timestamp: ${timestampIso})...`
           );
 
           const graphResult = await mainGraph.invoke(

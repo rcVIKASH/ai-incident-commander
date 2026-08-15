@@ -12,6 +12,6 @@
     "skipLibCheck": true,
     "types": ["node"]
   },
-  "include": ["app/**/*.ts", "app/pubSub/test.js", "app/pubSub/test2.js"],
+  "include": ["app/**/*.ts", "app/pubSub/test.js", "app/pubSub/test2.js", "app/langGraph/llm.ts"],
   "exclude": ["dist", "node_modules"]
 }

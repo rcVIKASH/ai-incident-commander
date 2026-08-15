@@ -7,6 +7,9 @@ export const incidentWebhookSchema = z.object({
   type: z.string(),
   title: z.string(),
   message: z.string().optional(),
+  detectedAt: z.union([z.string(), z.date()]).optional(),
+  startedAt: z.union([z.string(), z.date()]).optional(),
+  timestamp: z.union([z.string(), z.date()]).optional(),
   metadata: z.record(z.string(), z.any()).optional(),
 });
 

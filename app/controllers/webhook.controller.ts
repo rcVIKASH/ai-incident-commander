@@ -21,6 +21,8 @@ export const receiveIncidentWebhook = wrapAsync(async (req, res) => {
     title: data.title,
     message: data.message,
     source: "webhook",
+    detectedAt: data.detectedAt || data.timestamp ? new Date((data.detectedAt || data.timestamp)!) : new Date(),
+    startedAt: data.startedAt ? new Date(data.startedAt) : undefined,
     metadata: data.metadata,
   });
 
