@@ -1,14 +1,11 @@
 import { tool } from "@langchain/core/tools";
 import { z } from "zod";
 import { TelemetryProvider } from "../evidenceGraphNode/providers/telemetryProvider.js";
-import { MockTelemetryProvider } from "../evidenceGraphNode/providers/mockTelemetryProvider.js";
-
-const defaultProvider: TelemetryProvider = new MockTelemetryProvider();
 
 /**
  * Tool: Fetch targeted application and telemetry logs
  */
-export function createGetLogsTool(provider: TelemetryProvider = defaultProvider) {
+export function createGetLogsTool(provider: TelemetryProvider) {
   return tool(
     async (input) => {
       try {
@@ -62,7 +59,7 @@ export function createGetLogsTool(provider: TelemetryProvider = defaultProvider)
 /**
  * Tool: Fetch performance telemetry metrics (duration, error rate, CPU, DB connections)
  */
-export function createGetMetricsTool(provider: TelemetryProvider = defaultProvider) {
+export function createGetMetricsTool(provider: TelemetryProvider) {
   return tool(
     async (input) => {
       try {
@@ -108,7 +105,7 @@ export function createGetMetricsTool(provider: TelemetryProvider = defaultProvid
 /**
  * Tool: Fetch distributed trace spans for error investigation
  */
-export function createGetTracesTool(provider: TelemetryProvider = defaultProvider) {
+export function createGetTracesTool(provider: TelemetryProvider) {
   return tool(
     async (input) => {
       try {
@@ -155,7 +152,7 @@ export function createGetTracesTool(provider: TelemetryProvider = defaultProvide
 /**
  * Tool: Fetch service health and active alerts
  */
-export function createGetServiceHealthTool(provider: TelemetryProvider = defaultProvider) {
+export function createGetServiceHealthTool(provider: TelemetryProvider) {
   return tool(
     async (input) => {
       try {
@@ -181,7 +178,7 @@ export function createGetServiceHealthTool(provider: TelemetryProvider = default
 /**
  * Tool: Fetch recent deployments for a service
  */
-export function createGetDeploymentsTool(provider: TelemetryProvider = defaultProvider) {
+export function createGetDeploymentsTool(provider: TelemetryProvider) {
   return tool(
     async (input) => {
       try {
@@ -208,7 +205,7 @@ export function createGetDeploymentsTool(provider: TelemetryProvider = defaultPr
 /**
  * Tool: Fetch recent git commits for a service
  */
-export function createGetRecentCommitsTool(provider: TelemetryProvider = defaultProvider) {
+export function createGetRecentCommitsTool(provider: TelemetryProvider) {
   return tool(
     async (input) => {
       try {
@@ -235,7 +232,7 @@ export function createGetRecentCommitsTool(provider: TelemetryProvider = default
 /**
  * Helper to construct all telemetry tools for an optional provider
  */
-export function getTelemetryTools(provider: TelemetryProvider = defaultProvider) {
+export function getTelemetryTools(provider: TelemetryProvider) {
   return [
     createGetLogsTool(provider),
     createGetMetricsTool(provider),

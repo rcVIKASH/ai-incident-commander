@@ -1,15 +1,16 @@
 import "dotenv/config";
 import { mainGraph } from "./mainGraph.js";
 import { evidenceCollector } from "./evidenceGraphNode/evidenceCollector.js";
-import { seedDemoTelemetry } from "../telemetry/demoCustomerApp.js";
+import { prisma } from "../db/config.js";
 
 async function testGraphNode() {
   console.log("--------------------------------------------------");
   console.log("🚀 Testing LangGraph + PostgreSQL Telemetry Provider (commander_telemetry)");
   console.log("--------------------------------------------------\n");
 
-  // 1. Seed correlated telemetry in PostgreSQL database
-  const { organizationId } = await seedDemoTelemetry();
+  // Query existing organization directly from PostgreSQL database
+  const existingOrg = await prisma.organization.findFirst();
+  const organizationId = existingOrg?.id || "prod-org-id-001";
 
   const sampleIncident = {
     incidentId: "inc-payment-db-timeout-101",

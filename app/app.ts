@@ -7,8 +7,12 @@ import organizationRouter from "./router/organization.router.js";
 import apiKeyRouter from "./router/apiKey.router.js";
 import webhookRouter from "./router/webhook.router.js";
 import telemetryIngestRouter from "./router/telemetryIngest.router.js";
+import { startRetentionJob } from "./jobs/retentionJob.js";
 
 const app = express();
+
+// Start background cron jobs
+startRetentionJob();
 
 // Telemetry ingestion routes — uses dedicated 5MB body parser inside router
 app.use("/v1", telemetryIngestRouter);
