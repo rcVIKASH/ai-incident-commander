@@ -33,6 +33,12 @@ export const webhookMiddleware = async (
     });
   }
 
+  if (keyRecord.scope !== "ALERT_WEBHOOK") {
+    return res.status(403).json({
+      message: 'API key scope must be "ALERT_WEBHOOK" to send incident webhooks',
+    });
+  }
+
   // Check if key is revoked
   if (keyRecord.revokedAt) {
     return res.status(401).json({

@@ -1,4 +1,4 @@
-import { Router } from "express";
+import express, { Router } from "express";
 import { telemetryAuthMiddleware } from "../middlewares/telemetryAuth.middleware.js";
 import {
   ingestTraces,
@@ -8,6 +8,7 @@ import {
 
 const router = Router();
 
+router.use(express.json({ limit: "5mb" }));
 router.use(telemetryAuthMiddleware);
 
 router.post("/traces", ingestTraces);

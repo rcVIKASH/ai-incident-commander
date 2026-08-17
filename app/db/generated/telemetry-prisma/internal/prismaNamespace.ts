@@ -714,6 +714,7 @@ export const TelemetryLogScalarFieldEnum = {
   spanId: 'spanId',
   attributes: 'attributes',
   resourceAttributes: 'resourceAttributes',
+  eventHash: 'eventHash',
   ingestedAt: 'ingestedAt'
 } as const
 
@@ -731,6 +732,7 @@ export const MetricPointScalarFieldEnum = {
   value: 'value',
   attributes: 'attributes',
   resourceAttributes: 'resourceAttributes',
+  eventHash: 'eventHash',
   ingestedAt: 'ingestedAt'
 } as const
 

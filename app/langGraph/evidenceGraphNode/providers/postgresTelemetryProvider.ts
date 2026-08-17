@@ -102,15 +102,30 @@ export class PostgresTelemetryProvider implements TelemetryProvider {
       whereClause.traceId = query.traceId;
     }
 
-    const spans = await telemetryPrisma.telemetrySpan.findMany({
+    // Step 1: Find matching distinct trace IDs
+    const matchingSpans = await telemetryPrisma.telemetrySpan.findMany({
       where: whereClause,
+      select: { traceId: true },
+      distinct: ["traceId"],
       orderBy: { startTime: "desc" },
-      take: (query.limit || 20) * 10, // Fetch spans for matching traces
+      take: query.limit || 20,
     });
 
-    // Group spans by traceId
-    const byTrace = new Map<string, typeof spans>();
-    for (const span of spans) {
+    const traceIds = matchingSpans.map((s) => s.traceId);
+    if (traceIds.length === 0) return [];
+
+    // Step 2: Fetch ALL spans for matching trace IDs, tenant-scoped
+    const allSpans = await telemetryPrisma.telemetrySpan.findMany({
+      where: {
+        organizationId: this.organizationId,
+        traceId: { in: traceIds },
+      },
+      orderBy: { startTime: "asc" },
+    });
+
+    // Step 3: Reconstruct full traces
+    const byTrace = new Map<string, typeof allSpans>();
+    for (const span of allSpans) {
       const existing = byTrace.get(span.traceId) || [];
       existing.push(span);
       byTrace.set(span.traceId, existing);
@@ -144,8 +159,6 @@ export class PostgresTelemetryProvider implements TelemetryProvider {
         status: isError ? "ERROR" : "OK",
         spans: mappedSpans,
       });
-
-      if (traces.length >= (query.limit || 20)) break;
     }
 
     return traces;
@@ -190,23 +203,14 @@ export class PostgresTelemetryProvider implements TelemetryProvider {
   async getServiceHealth(service: string): Promise<ServiceHealth> {
     const recentStart = new Date(Date.now() - 15 * 60 * 1000);
 
-    const [errorCount, totalSpans] = await Promise.all([
-      telemetryPrisma.telemetryLog.count({
-        where: {
-          organizationId: this.organizationId,
-          serviceName: service,
-          severity: "ERROR",
-          timestamp: { gte: recentStart },
-        },
-      }),
-      telemetryPrisma.telemetrySpan.count({
-        where: {
-          organizationId: this.organizationId,
-          serviceName: service,
-          startTime: { gte: recentStart },
-        },
-      }),
-    ]);
+    const errorCount = await telemetryPrisma.telemetryLog.count({
+      where: {
+        organizationId: this.organizationId,
+        serviceName: service,
+        severity: "ERROR",
+        timestamp: { gte: recentStart },
+      },
+    });
 
     const isDegraded = errorCount > 0;
 
@@ -214,34 +218,14 @@ export class PostgresTelemetryProvider implements TelemetryProvider {
       service,
       status: isDegraded ? "DEGRADED" : "HEALTHY",
       activeAlertsCount: errorCount > 0 ? Math.min(errorCount, 5) : 0,
-      uptimePercent: isDegraded ? 98.5 : 99.99,
-      lastDeploymentAt: new Date(Date.now() - 60 * 60 * 1000).toISOString(),
     };
   }
 
-  async getDeployments(service: string, limit = 5): Promise<DeploymentRecord[]> {
-    return [
-      {
-        deploymentId: `dep-${service}-latest`,
-        service,
-        version: "v2.14.0",
-        timestamp: new Date(Date.now() - 60 * 60 * 1000).toISOString(),
-        deployedBy: "ci-cd-bot",
-        status: "SUCCESS" as const,
-        commitHash: "a7d9f12",
-      },
-    ].slice(0, limit);
+  async getDeployments(_service: string, _limit = 5): Promise<DeploymentRecord[]> {
+    return [];
   }
 
-  async getRecentCommits(service: string, limit = 5): Promise<CommitRecord[]> {
-    return [
-      {
-        hash: "a7d9f12",
-        author: "devops-lead@saas.com",
-        timestamp: new Date(Date.now() - 65 * 60 * 1000).toISOString(),
-        message: "fix(db): optimize connection pool parameters and query timeouts",
-        service,
-      },
-    ].slice(0, limit);
+  async getRecentCommits(_service: string, _limit = 5): Promise<CommitRecord[]> {
+    return [];
   }
 }

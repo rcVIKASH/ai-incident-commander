@@ -44,10 +44,12 @@ model TelemetryLog {
   spanId             String?
   attributes         Json?
   resourceAttributes Json?
+  eventHash          String?
   ingestedAt         DateTime @default(now())
 
   @@index([organizationId, serviceName, timestamp])
   @@index([organizationId, traceId])
+  @@unique([organizationId, eventHash])
   @@map("telemetry_logs")
 }
 
@@ -62,8 +64,10 @@ model MetricPoint {
   value              Float
   attributes         Json?
   resourceAttributes Json?
+  eventHash          String?
   ingestedAt         DateTime @default(now())
 
   @@index([organizationId, serviceName, metricName, timestamp])
+  @@unique([organizationId, eventHash])
   @@map("metric_points")
 }

@@ -1,13 +1,24 @@
+import crypto from "crypto";
 import { sanitizeAttributes } from "../utils/privacy.js";
 
-function parseNanoToDate(nanos: string | number | undefined): Date {
-  if (!nanos) return new Date();
+function parseNanoToDate(nanos: string | number | undefined): Date | null {
+  if (!nanos) return null;
   try {
     const numNanos = typeof nanos === "string" ? BigInt(nanos) : BigInt(nanos);
-    return new Date(Number(numNanos / 1_000_000n));
+    const ms = Number(numNanos / 1_000_000n);
+    if (isNaN(ms) || ms <= 0) return null;
+    const d = new Date(ms);
+    return isNaN(d.getTime()) ? null : d;
   } catch {
-    return new Date();
+    return null;
   }
+}
+
+function computeEventHash(parts: (string | number | object | undefined | null)[]): string {
+  const canonical = parts
+    .map((p) => (typeof p === "object" ? JSON.stringify(p ?? {}) : String(p ?? "")))
+    .join("|");
+  return crypto.createHash("sha256").update(canonical).digest("hex");
 }
 
 function otlpValueToAttribute(value: any): any {
@@ -59,11 +70,17 @@ export type IngestSpanInput = {
   resourceAttributes?: Record<string, any>;
 };
 
+export type NormalizeSpansResult = {
+  spans: IngestSpanInput[];
+  rejectedCount: number;
+};
+
 export function normalizeOtlpSpans(
   body: any,
   organizationId: string
-): IngestSpanInput[] {
-  const out: IngestSpanInput[] = [];
+): NormalizeSpansResult {
+  const spans: IngestSpanInput[] = [];
+  let rejectedCount = 0;
   const resourceSpans = body?.resourceSpans || body?.resource_spans || [];
 
   for (const rs of resourceSpans) {
@@ -75,12 +92,17 @@ export function normalizeOtlpSpans(
       for (const span of scope.spans || []) {
         const startTime = parseNanoToDate(span.startTimeUnixNano || span.start_time_unix_nano);
         const endTime = parseNanoToDate(span.endTimeUnixNano || span.end_time_unix_nano);
-        const durationMs = Math.max(0, endTime.getTime() - startTime.getTime());
 
+        if (!startTime || !endTime) {
+          rejectedCount++;
+          continue;
+        }
+
+        const durationMs = Math.max(0, endTime.getTime() - startTime.getTime());
         const statusCodeNum = span.status?.code ?? 0;
         const statusCodeStr = statusCodeNum === 2 ? "ERROR" : statusCodeNum === 1 ? "OK" : "UNSET";
 
-        out.push({
+        spans.push({
           organizationId,
           traceId: span.traceId || span.trace_id || "",
           spanId: span.spanId || span.span_id || "",
@@ -100,7 +122,7 @@ export function normalizeOtlpSpans(
     }
   }
 
-  return out;
+  return { spans, rejectedCount };
 }
 
 export type IngestLogInput = {
@@ -114,13 +136,20 @@ export type IngestLogInput = {
   spanId?: string;
   attributes?: Record<string, any>;
   resourceAttributes?: Record<string, any>;
+  eventHash?: string;
+};
+
+export type NormalizeLogsResult = {
+  logs: IngestLogInput[];
+  rejectedCount: number;
 };
 
 export function normalizeOtlpLogs(
   body: any,
   organizationId: string
-): IngestLogInput[] {
-  const out: IngestLogInput[] = [];
+): NormalizeLogsResult {
+  const logs: IngestLogInput[] = [];
+  let rejectedCount = 0;
   const resourceLogs = body?.resourceLogs || body?.resource_logs || [];
 
   for (const rl of resourceLogs) {
@@ -131,26 +160,48 @@ export function normalizeOtlpLogs(
     for (const scope of rl.scopeLogs || rl.scope_logs || []) {
       for (const rec of scope.logRecords || scope.log_records || []) {
         const timestamp = parseNanoToDate(rec.timeUnixNano || rec.time_unix_nano);
-        const severity = rec.severityText || rec.severity_text || "INFO";
-        const message = rec.body ? String(otlpValueToAttribute(rec.body)) : "";
+        if (!timestamp) {
+          rejectedCount++;
+          continue;
+        }
 
-        out.push({
+        const severity = (rec.severityText || rec.severity_text || "INFO").toUpperCase();
+        const message = rec.body ? String(otlpValueToAttribute(rec.body)) : "";
+        const traceId = rec.traceId || rec.trace_id || undefined;
+        const spanId = rec.spanId || rec.span_id || undefined;
+        const attributes = mapAttributesMap(rec.attributes);
+
+        const eventHash = computeEventHash([
+          organizationId,
+          environment,
+          serviceName,
+          timestamp.toISOString(),
+          traceId,
+          spanId,
+          severity,
+          message,
+          attributes,
+          resourceAttrs,
+        ]);
+
+        logs.push({
           organizationId,
           timestamp,
           serviceName,
           environment,
-          severity: severity.toUpperCase(),
+          severity,
           message,
-          traceId: rec.traceId || rec.trace_id || undefined,
-          spanId: rec.spanId || rec.span_id || undefined,
-          attributes: mapAttributesMap(rec.attributes),
+          traceId,
+          spanId,
+          attributes,
           resourceAttributes: resourceAttrs,
+          eventHash,
         });
       }
     }
   }
 
-  return out;
+  return { logs, rejectedCount };
 }
 
 export type IngestMetricInput = {
@@ -163,13 +214,20 @@ export type IngestMetricInput = {
   value: number;
   attributes?: Record<string, any>;
   resourceAttributes?: Record<string, any>;
+  eventHash?: string;
+};
+
+export type NormalizeMetricsResult = {
+  metrics: IngestMetricInput[];
+  rejectedCount: number;
 };
 
 export function normalizeOtlpMetrics(
   body: any,
   organizationId: string
-): IngestMetricInput[] {
-  const out: IngestMetricInput[] = [];
+): NormalizeMetricsResult {
+  const metrics: IngestMetricInput[] = [];
+  let rejectedCount = 0;
   const resourceMetrics = body?.resourceMetrics || body?.resource_metrics || [];
 
   for (const rm of resourceMetrics) {
@@ -180,15 +238,32 @@ export function normalizeOtlpMetrics(
     for (const scope of rm.scopeMetrics || rm.scope_metrics || []) {
       for (const metric of scope.metrics || []) {
         const metricName = metric.name || "unnamed_metric";
-        // v1 supports Gauge and Sum points
         const dataPoints = metric.gauge?.dataPoints || metric.sum?.dataPoints || metric.gauge?.data_points || metric.sum?.data_points || [];
         const metricType = metric.gauge ? "gauge" : metric.sum ? "sum" : "unknown";
 
         for (const dp of dataPoints) {
           const timestamp = parseNanoToDate(dp.timeUnixNano || dp.time_unix_nano);
-          const value = dp.asDouble ?? dp.as_double ?? (dp.asInt !== undefined ? Number(dp.asInt) : dp.as_int !== undefined ? Number(dp.as_int) : 0);
+          if (!timestamp) {
+            rejectedCount++;
+            continue;
+          }
 
-          out.push({
+          const value = dp.asDouble ?? dp.as_double ?? (dp.asInt !== undefined ? Number(dp.asInt) : dp.as_int !== undefined ? Number(dp.as_int) : 0);
+          const attributes = mapAttributesMap(dp.attributes);
+
+          const eventHash = computeEventHash([
+            organizationId,
+            environment,
+            serviceName,
+            timestamp.toISOString(),
+            metricName,
+            metricType,
+            value,
+            attributes,
+            resourceAttrs,
+          ]);
+
+          metrics.push({
             organizationId,
             timestamp,
             serviceName,
@@ -196,13 +271,14 @@ export function normalizeOtlpMetrics(
             metricName,
             metricType,
             value: Number(value),
-            attributes: mapAttributesMap(dp.attributes),
+            attributes,
             resourceAttributes: resourceAttrs,
+            eventHash,
           });
         }
       }
     }
   }
 
-  return out;
+  return { metrics, rejectedCount };
 }

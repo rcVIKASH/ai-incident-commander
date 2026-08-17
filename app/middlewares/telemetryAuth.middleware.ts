@@ -34,8 +34,7 @@ export const telemetryAuthMiddleware = async (
     });
   }
 
-  // Verify scope is TELEMETRY_INGEST (or allow fallback if scope not restricted)
-  if (keyRecord.scope && keyRecord.scope !== "TELEMETRY_INGEST" && keyRecord.scope !== "DASHBOARD_API") {
+  if (keyRecord.scope !== "TELEMETRY_INGEST") {
     return res.status(403).json({
       message: `API key scope "${keyRecord.scope}" cannot ingest telemetry. Must have "TELEMETRY_INGEST" scope.`,
     });

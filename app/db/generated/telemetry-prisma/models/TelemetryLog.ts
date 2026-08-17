@@ -34,6 +34,7 @@ export type TelemetryLogMinAggregateOutputType = {
   message: string | null
   traceId: string | null
   spanId: string | null
+  eventHash: string | null
   ingestedAt: Date | null
 }
 
@@ -47,6 +48,7 @@ export type TelemetryLogMaxAggregateOutputType = {
   message: string | null
   traceId: string | null
   spanId: string | null
+  eventHash: string | null
   ingestedAt: Date | null
 }
 
@@ -62,6 +64,7 @@ export type TelemetryLogCountAggregateOutputType = {
   spanId: number
   attributes: number
   resourceAttributes: number
+  eventHash: number
   ingestedAt: number
   _all: number
 }
@@ -77,6 +80,7 @@ export type TelemetryLogMinAggregateInputType = {
   message?: true
   traceId?: true
   spanId?: true
+  eventHash?: true
   ingestedAt?: true
 }
 
@@ -90,6 +94,7 @@ export type TelemetryLogMaxAggregateInputType = {
   message?: true
   traceId?: true
   spanId?: true
+  eventHash?: true
   ingestedAt?: true
 }
 
@@ -105,6 +110,7 @@ export type TelemetryLogCountAggregateInputType = {
   spanId?: true
   attributes?: true
   resourceAttributes?: true
+  eventHash?: true
   ingestedAt?: true
   _all?: true
 }
@@ -193,6 +199,7 @@ export type TelemetryLogGroupByOutputType = {
   spanId: string | null
   attributes: runtime.JsonValue | null
   resourceAttributes: runtime.JsonValue | null
+  eventHash: string | null
   ingestedAt: Date
   _count: TelemetryLogCountAggregateOutputType | null
   _min: TelemetryLogMinAggregateOutputType | null
@@ -229,6 +236,7 @@ export type TelemetryLogWhereInput = {
   spanId?: Prisma.StringNullableFilter<"TelemetryLog"> | string | null
   attributes?: Prisma.JsonNullableFilter<"TelemetryLog">
   resourceAttributes?: Prisma.JsonNullableFilter<"TelemetryLog">
+  eventHash?: Prisma.StringNullableFilter<"TelemetryLog"> | string | null
   ingestedAt?: Prisma.DateTimeFilter<"TelemetryLog"> | Date | string
 }
 
@@ -244,11 +252,13 @@ export type TelemetryLogOrderByWithRelationInput = {
   spanId?: Prisma.SortOrderInput | Prisma.SortOrder
   attributes?: Prisma.SortOrderInput | Prisma.SortOrder
   resourceAttributes?: Prisma.SortOrderInput | Prisma.SortOrder
+  eventHash?: Prisma.SortOrderInput | Prisma.SortOrder
   ingestedAt?: Prisma.SortOrder
 }
 
 export type TelemetryLogWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  organizationId_eventHash?: Prisma.TelemetryLogOrganizationIdEventHashCompoundUniqueInput
   AND?: Prisma.TelemetryLogWhereInput | Prisma.TelemetryLogWhereInput[]
   OR?: Prisma.TelemetryLogWhereInput[]
   NOT?: Prisma.TelemetryLogWhereInput | Prisma.TelemetryLogWhereInput[]
@@ -262,8 +272,9 @@ export type TelemetryLogWhereUniqueInput = Prisma.AtLeast<{
   spanId?: Prisma.StringNullableFilter<"TelemetryLog"> | string | null
   attributes?: Prisma.JsonNullableFilter<"TelemetryLog">
   resourceAttributes?: Prisma.JsonNullableFilter<"TelemetryLog">
+  eventHash?: Prisma.StringNullableFilter<"TelemetryLog"> | string | null
   ingestedAt?: Prisma.DateTimeFilter<"TelemetryLog"> | Date | string
-}, "id">
+}, "id" | "organizationId_eventHash">
 
 export type TelemetryLogOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -277,6 +288,7 @@ export type TelemetryLogOrderByWithAggregationInput = {
   spanId?: Prisma.SortOrderInput | Prisma.SortOrder
   attributes?: Prisma.SortOrderInput | Prisma.SortOrder
   resourceAttributes?: Prisma.SortOrderInput | Prisma.SortOrder
+  eventHash?: Prisma.SortOrderInput | Prisma.SortOrder
   ingestedAt?: Prisma.SortOrder
   _count?: Prisma.TelemetryLogCountOrderByAggregateInput
   _max?: Prisma.TelemetryLogMaxOrderByAggregateInput
@@ -298,6 +310,7 @@ export type TelemetryLogScalarWhereWithAggregatesInput = {
   spanId?: Prisma.StringNullableWithAggregatesFilter<"TelemetryLog"> | string | null
   attributes?: Prisma.JsonNullableWithAggregatesFilter<"TelemetryLog">
   resourceAttributes?: Prisma.JsonNullableWithAggregatesFilter<"TelemetryLog">
+  eventHash?: Prisma.StringNullableWithAggregatesFilter<"TelemetryLog"> | string | null
   ingestedAt?: Prisma.DateTimeWithAggregatesFilter<"TelemetryLog"> | Date | string
 }
 
@@ -313,6 +326,7 @@ export type TelemetryLogCreateInput = {
   spanId?: string | null
   attributes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   resourceAttributes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  eventHash?: string | null
   ingestedAt?: Date | string
 }
 
@@ -328,6 +342,7 @@ export type TelemetryLogUncheckedCreateInput = {
   spanId?: string | null
   attributes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   resourceAttributes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  eventHash?: string | null
   ingestedAt?: Date | string
 }
 
@@ -343,6 +358,7 @@ export type TelemetryLogUpdateInput = {
   spanId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   attributes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   resourceAttributes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  eventHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ingestedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -358,6 +374,7 @@ export type TelemetryLogUncheckedUpdateInput = {
   spanId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   attributes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   resourceAttributes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  eventHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ingestedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -373,6 +390,7 @@ export type TelemetryLogCreateManyInput = {
   spanId?: string | null
   attributes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   resourceAttributes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  eventHash?: string | null
   ingestedAt?: Date | string
 }
 
@@ -388,6 +406,7 @@ export type TelemetryLogUpdateManyMutationInput = {
   spanId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   attributes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   resourceAttributes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  eventHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ingestedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -403,7 +422,13 @@ export type TelemetryLogUncheckedUpdateManyInput = {
   spanId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   attributes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   resourceAttributes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  eventHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ingestedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type TelemetryLogOrganizationIdEventHashCompoundUniqueInput = {
+  organizationId: string
+  eventHash: string
 }
 
 export type TelemetryLogCountOrderByAggregateInput = {
@@ -418,6 +443,7 @@ export type TelemetryLogCountOrderByAggregateInput = {
   spanId?: Prisma.SortOrder
   attributes?: Prisma.SortOrder
   resourceAttributes?: Prisma.SortOrder
+  eventHash?: Prisma.SortOrder
   ingestedAt?: Prisma.SortOrder
 }
 
@@ -431,6 +457,7 @@ export type TelemetryLogMaxOrderByAggregateInput = {
   message?: Prisma.SortOrder
   traceId?: Prisma.SortOrder
   spanId?: Prisma.SortOrder
+  eventHash?: Prisma.SortOrder
   ingestedAt?: Prisma.SortOrder
 }
 
@@ -444,6 +471,7 @@ export type TelemetryLogMinOrderByAggregateInput = {
   message?: Prisma.SortOrder
   traceId?: Prisma.SortOrder
   spanId?: Prisma.SortOrder
+  eventHash?: Prisma.SortOrder
   ingestedAt?: Prisma.SortOrder
 }
 
@@ -461,6 +489,7 @@ export type TelemetryLogSelect<ExtArgs extends runtime.Types.Extensions.Internal
   spanId?: boolean
   attributes?: boolean
   resourceAttributes?: boolean
+  eventHash?: boolean
   ingestedAt?: boolean
 }, ExtArgs["result"]["telemetryLog"]>
 
@@ -476,6 +505,7 @@ export type TelemetryLogSelectCreateManyAndReturn<ExtArgs extends runtime.Types.
   spanId?: boolean
   attributes?: boolean
   resourceAttributes?: boolean
+  eventHash?: boolean
   ingestedAt?: boolean
 }, ExtArgs["result"]["telemetryLog"]>
 
@@ -491,6 +521,7 @@ export type TelemetryLogSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.
   spanId?: boolean
   attributes?: boolean
   resourceAttributes?: boolean
+  eventHash?: boolean
   ingestedAt?: boolean
 }, ExtArgs["result"]["telemetryLog"]>
 
@@ -506,10 +537,11 @@ export type TelemetryLogSelectScalar = {
   spanId?: boolean
   attributes?: boolean
   resourceAttributes?: boolean
+  eventHash?: boolean
   ingestedAt?: boolean
 }
 
-export type TelemetryLogOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "organizationId" | "timestamp" | "serviceName" | "environment" | "severity" | "message" | "traceId" | "spanId" | "attributes" | "resourceAttributes" | "ingestedAt", ExtArgs["result"]["telemetryLog"]>
+export type TelemetryLogOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "organizationId" | "timestamp" | "serviceName" | "environment" | "severity" | "message" | "traceId" | "spanId" | "attributes" | "resourceAttributes" | "eventHash" | "ingestedAt", ExtArgs["result"]["telemetryLog"]>
 
 export type $TelemetryLogPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "TelemetryLog"
@@ -526,6 +558,7 @@ export type $TelemetryLogPayload<ExtArgs extends runtime.Types.Extensions.Intern
     spanId: string | null
     attributes: runtime.JsonValue | null
     resourceAttributes: runtime.JsonValue | null
+    eventHash: string | null
     ingestedAt: Date
   }, ExtArgs["result"]["telemetryLog"]>
   composites: {}
@@ -961,6 +994,7 @@ export interface TelemetryLogFieldRefs {
   readonly spanId: Prisma.FieldRef<"TelemetryLog", 'String'>
   readonly attributes: Prisma.FieldRef<"TelemetryLog", 'Json'>
   readonly resourceAttributes: Prisma.FieldRef<"TelemetryLog", 'Json'>
+  readonly eventHash: Prisma.FieldRef<"TelemetryLog", 'String'>
   readonly ingestedAt: Prisma.FieldRef<"TelemetryLog", 'DateTime'>
 }
     

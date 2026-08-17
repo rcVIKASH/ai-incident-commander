@@ -4,6 +4,7 @@ export const incidentSchema = z.object({
   organizationId: z.string(),
   externalAlertId: z.string().optional(),
   service: z.string(),
+  environment: z.string().optional(),
   severity: z.string(),
   type: z.string(),
   title: z.string(),
@@ -22,8 +23,9 @@ export const incidentSchema = z.object({
   source: z.string(),
   detectedAt: z.union([z.string(), z.date()]).optional(),
   startedAt: z.union([z.string(), z.date()]).optional(),
+  telemetryWindowStart: z.union([z.string(), z.date()]).optional(),
+  telemetryWindowEnd: z.union([z.string(), z.date()]).optional(),
   metadata: z.record(z.string(), z.any()).optional(),
 });
-
 
 export type IncidentCreateInput = z.infer<typeof incidentSchema>;

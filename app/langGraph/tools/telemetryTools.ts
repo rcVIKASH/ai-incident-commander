@@ -170,7 +170,7 @@ export function createGetServiceHealthTool(provider: TelemetryProvider = default
     },
     {
       name: "get_service_health",
-      description: "Fetch real-time operational health status, active alerts count, and uptime for a service.",
+      description: "Calculates a telemetry-derived health heuristic for a service based on recent error log and failed span counts.",
       schema: z.object({
         service: z.string().describe("Target service name"),
       }),

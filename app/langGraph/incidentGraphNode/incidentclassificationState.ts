@@ -4,8 +4,11 @@ import { IncidentClassification } from "../../validators/incidentClassification.
 export interface IncidentInput {
   service: string;
   message: string;
+  environment?: string;
   severity?: string;
   timestamp?: string;
+  telemetryWindowStart?: string;
+  telemetryWindowEnd?: string;
   title?: string;
   alertId?: string;
   incidentId?: string;

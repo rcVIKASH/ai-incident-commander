@@ -16,6 +16,7 @@ export const receiveIncidentWebhook = wrapAsync(async (req, res) => {
     organizationId: organization.id,
     externalAlertId: data.alertId,
     service: data.service,
+    environment: data.environment || data.metadata?.environment || "production",
     severity: data.severity,
     type: data.type,
     title: data.title,
@@ -23,6 +24,8 @@ export const receiveIncidentWebhook = wrapAsync(async (req, res) => {
     source: "webhook",
     detectedAt: data.detectedAt || data.timestamp ? new Date((data.detectedAt || data.timestamp)!) : new Date(),
     startedAt: data.startedAt ? new Date(data.startedAt) : undefined,
+    telemetryWindowStart: data.telemetryWindowStart ? new Date(data.telemetryWindowStart) : undefined,
+    telemetryWindowEnd: data.telemetryWindowEnd ? new Date(data.telemetryWindowEnd) : undefined,
     metadata: data.metadata,
   });
 

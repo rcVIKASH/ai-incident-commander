@@ -7,7 +7,7 @@ import { generateApiKeySchema } from "../validators/apiKey.validation.js";
 export const generateApiKey = wrapAsync(async (req, res) => {
   // 1. Validate request body
   const data = generateApiKeySchema.parse(req.body);
-  const { name, expiresInDays, organizationId: requestedOrganizationId } = data;
+  const { name, expiresInDays, organizationId: requestedOrganizationId, scope } = data;
 
   // 2. Determine organization
   const organizationId = requestedOrganizationId || req.user?.organizationId;
@@ -69,6 +69,7 @@ export const generateApiKey = wrapAsync(async (req, res) => {
       keyHash,
       organizationId,
       expiresAt,
+      scope,
     },
     select: {
       id: true,
@@ -76,6 +77,7 @@ export const generateApiKey = wrapAsync(async (req, res) => {
       organizationId: true,
       createdAt: true,
       expiresAt: true,
+      scope: true,
     },
   });
 

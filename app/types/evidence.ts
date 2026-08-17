@@ -107,7 +107,7 @@ export type ServiceHealth = {
   service: string;
   status: "HEALTHY" | "DEGRADED" | "DOWN";
   activeAlertsCount: number;
-  uptimePercent: number;
+  uptimePercent?: number;
   lastDeploymentAt?: string;
 };
 

@@ -27,7 +27,13 @@ const evidenceAgent = async (
     };
   }
 
-  const orgId = incident.organizationId || "default-org";
+  const orgId = incident.organizationId;
+  if (!orgId) {
+    return {
+      error: "Cannot collect evidence: Missing organizationId in incident state",
+    };
+  }
+
   const provider = new PostgresTelemetryProvider(orgId);
   const telemetryTools = getTelemetryTools(provider);
   const modelWithTools = model4.bindTools(telemetryTools);
@@ -37,23 +43,25 @@ const evidenceAgent = async (
   // Build context for the LLM on first invocation (no messages yet from the agent)
   if (messages.length === 0 || !messages[0] || !(messages[0] instanceof SystemMessage)) {
     const service = incident.service;
-    const environment = incident.metadata?.environment || "production";
+    const environment = incident.environment || incident.metadata?.environment || "production";
     const incidentTime = incident.timestamp
       ? new Date(incident.timestamp)
       : new Date();
-    const startTime = new Date(
-      incidentTime.getTime() - 15 * 60 * 1000,
-    ).toISOString();
-    const endTime = new Date(
-      incidentTime.getTime() + 5 * 60 * 1000,
-    ).toISOString();
+
+    const startTime = incident.telemetryWindowStart
+      ? new Date(incident.telemetryWindowStart).toISOString()
+      : new Date(incidentTime.getTime() - 15 * 60 * 1000).toISOString();
+
+    const endTime = incident.telemetryWindowEnd
+      ? new Date(incident.telemetryWindowEnd).toISOString()
+      : new Date(incidentTime.getTime() + 5 * 60 * 1000).toISOString();
 
     const classification = state.classification;
 
     const systemPrompt = `You are an AI Evidence Collection Agent for AI Incident Commander.
 
 Your job is to collect targeted telemetry evidence for an incident using the available tools.
-You are querying the PostgreSQL telemetry store for organization "${orgId}".
+You are querying the PostgreSQL telemetry store for service telemetry.
 
 INCIDENT CONTEXT:
 - Service: ${service}
@@ -73,9 +81,8 @@ INSTRUCTIONS:
 4. For logs, filter by severity ERROR and WARN. Use keyword filters if the alert mentions specific errors.
 5. For metrics, request only the metric names relevant to the incident type.
 6. For traces, filter by ERROR status to find failure paths.
-7. Call get_service_health to check current service status.
-8. If the incident might be deployment-related, call get_deployments and get_recent_commits.
-9. When you have collected sufficient evidence, stop calling tools and provide a brief summary of what you collected.
+7. Call get_service_health to check telemetry-derived health status.
+8. When you have collected sufficient evidence, stop calling tools and provide a brief summary of what you collected.
 
 IMPORTANT:
 - Always use service="${service}" in your tool calls.
@@ -83,7 +90,7 @@ IMPORTANT:
 - Do NOT call all tools blindly. Be selective based on the incident context.`;
 
     console.log(
-      `🔍 [EvidenceAgent] LLM analyzing incident for service "${service}" (Org: "${orgId}") to decide telemetry queries...`,
+      `🔍 [EvidenceAgent] LLM analyzing incident for service "${service}" to decide telemetry queries...`,
     );
 
     try {
@@ -139,7 +146,10 @@ IMPORTANT:
 const executeToolsNode = async (
   state: EvidenceStateType,
 ): Promise<Partial<EvidenceStateType>> => {
-  const orgId = state.incident?.organizationId || "default-org";
+  const orgId = state.incident?.organizationId;
+  if (!orgId) {
+    throw new Error("Cannot execute tools: Missing organizationId in incident state");
+  }
   const provider = new PostgresTelemetryProvider(orgId);
   const tools = getTelemetryTools(provider);
   const toolNode = new ToolNode(tools, { handleToolErrors: true });
@@ -183,7 +193,7 @@ const processEvidenceNode = async (
         if (parsed.traces) {
           rawEvidence.traces.push(...parsed.traces);
         }
-        if (parsed.status && parsed.service && parsed.uptimePercent !== undefined) {
+        if (parsed.status && parsed.service) {
           rawEvidence.health = parsed;
         }
         if (parsed.deployments) {

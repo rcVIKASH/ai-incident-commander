@@ -1,3 +1,4 @@
+import crypto from "crypto";
 import { telemetryPrisma } from "../db/telemetryDb.js";
 import {
   IngestSpanInput,
@@ -7,6 +8,13 @@ import {
 
 const MAX_BATCH_SIZE = 1000;
 
+function computeHash(parts: any[]): string {
+  return crypto
+    .createHash("sha256")
+    .update(parts.map((p) => (typeof p === "object" ? JSON.stringify(p ?? {}) : String(p ?? ""))).join("|"))
+    .digest("hex");
+}
+
 export class TelemetryRepository {
   async bulkInsertSpans(
     organizationId: string,
@@ -14,7 +22,6 @@ export class TelemetryRepository {
   ): Promise<{ inserted: number }> {
     if (!spans || spans.length === 0) return { inserted: 0 };
 
-    // Batching to prevent payload limits
     const validSpans = spans
       .filter((s) => s.traceId && s.spanId && s.organizationId === organizationId)
       .slice(0, MAX_BATCH_SIZE);
@@ -68,7 +75,22 @@ export class TelemetryRepository {
         spanId: l.spanId,
         attributes: l.attributes as any,
         resourceAttributes: l.resourceAttributes as any,
+        eventHash:
+          l.eventHash ||
+          computeHash([
+            l.organizationId,
+            l.environment,
+            l.serviceName,
+            l.timestamp.toISOString(),
+            l.traceId,
+            l.spanId,
+            l.severity,
+            l.message,
+            l.attributes,
+            l.resourceAttributes,
+          ]),
       })),
+      skipDuplicates: true, // Unique constraint: [organizationId, eventHash]
     });
 
     return { inserted: result.count };
@@ -97,7 +119,21 @@ export class TelemetryRepository {
         value: m.value,
         attributes: m.attributes as any,
         resourceAttributes: m.resourceAttributes as any,
+        eventHash:
+          m.eventHash ||
+          computeHash([
+            m.organizationId,
+            m.environment,
+            m.serviceName,
+            m.timestamp.toISOString(),
+            m.metricName,
+            m.metricType,
+            m.value,
+            m.attributes,
+            m.resourceAttributes,
+          ]),
       })),
+      skipDuplicates: true, // Unique constraint: [organizationId, eventHash]
     });
 
     return { inserted: result.count };

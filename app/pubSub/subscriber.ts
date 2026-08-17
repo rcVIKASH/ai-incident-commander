@@ -29,12 +29,20 @@ export async function startIncidentSubscriber(): Promise<void> {
           const rawContent = msg.content.toString();
           const incidentPayload = JSON.parse(rawContent);
 
+          if (!incidentPayload.organizationId) {
+            console.error(
+              `❌ [RabbitMQ Receiver] Rejecting malformed incident message: missing organizationId`
+            );
+            channel.ack(msg);
+            return;
+          }
+
+          const orgId = incidentPayload.organizationId;
           console.log(
-            `\n📥 [RabbitMQ Receiver] Incident event received for service "${incidentPayload.service}" (Org ID: ${incidentPayload.organizationId})`
+            `\n📥 [RabbitMQ Receiver] Incident event received for service "${incidentPayload.service}" (Org ID: ${orgId})`
           );
 
           // Configure thread_id to organizationId:incidentId so distinct investigations do not collide on checkpoint state
-          const orgId = incidentPayload.organizationId || "default-org";
           const incidentId = incidentPayload.id || incidentPayload.externalAlertId || `inc-${Date.now()}`;
           const threadId = `${orgId}:${incidentId}`;
 
@@ -61,11 +69,18 @@ export async function startIncidentSubscriber(): Promise<void> {
             incidentId,
             organizationId: orgId,
             service: incidentPayload.service,
+            environment: incidentPayload.environment || incidentPayload.metadata?.environment || "production",
             severity: incidentPayload.severity,
             type: incidentPayload.type,
             title: incidentPayload.title,
             message: incidentPayload.message,
             timestamp: timestampIso,
+            telemetryWindowStart: incidentPayload.telemetryWindowStart
+              ? new Date(incidentPayload.telemetryWindowStart).toISOString()
+              : undefined,
+            telemetryWindowEnd: incidentPayload.telemetryWindowEnd
+              ? new Date(incidentPayload.telemetryWindowEnd).toISOString()
+              : undefined,
             metadata: incidentPayload.metadata,
           };
 

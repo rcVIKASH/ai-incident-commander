@@ -10,12 +10,14 @@ import telemetryIngestRouter from "./router/telemetryIngest.router.js";
 
 const app = express();
 
-// middleware
-app.use(express.json({ limit: "5mb" }));
+// Telemetry ingestion routes — uses dedicated 5MB body parser inside router
+app.use("/v1", telemetryIngestRouter);
+
+// Global middleware for API routes
+app.use(express.json());
 app.use(cookieParser());
 
-// routes
-app.use("/v1", telemetryIngestRouter);
+// API routes
 app.use("/api/users", userRouter);
 app.use("/api/incidents", incidentRouter);
 app.use("/api/organizations", organizationRouter);
