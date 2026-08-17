@@ -15,7 +15,7 @@ const app = express();
 startRetentionJob();
 
 // Telemetry ingestion routes — uses dedicated 5MB body parser inside router
-app.use("/v1", telemetryIngestRouter);
+app.use("/v1/telemetry", telemetryIngestRouter);
 
 // Global middleware for API routes
 app.use(express.json());

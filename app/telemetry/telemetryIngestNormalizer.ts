@@ -122,6 +122,51 @@ export function normalizeOtlpSpans(
     }
   }
 
+  // Also process simple flat array if body.spans is provided
+  if (Array.isArray(body?.spans)) {
+    for (const span of body.spans) {
+      const startTime = span.startTime
+        ? new Date(span.startTime)
+        : parseNanoToDate(span.startTimeUnixNano || span.start_time_unix_nano);
+      const endTime = span.endTime
+        ? new Date(span.endTime)
+        : parseNanoToDate(span.endTimeUnixNano || span.end_time_unix_nano);
+
+      if (!startTime || !endTime || isNaN(startTime.getTime()) || isNaN(endTime.getTime())) {
+        rejectedCount++;
+        continue;
+      }
+
+      const durationMs =
+        span.durationMs !== undefined
+          ? Number(span.durationMs)
+          : Math.max(0, endTime.getTime() - startTime.getTime());
+
+      spans.push({
+        organizationId,
+        traceId: span.traceId || span.trace_id || "",
+        spanId: span.spanId || span.span_id || "",
+        parentSpanId: span.parentSpanId || span.parent_span_id || undefined,
+        serviceName: span.serviceName || span.service_name || "unknown-service",
+        environment: span.environment || "production",
+        operationName: span.operationName || span.name || "unnamed_operation",
+        spanKind: span.spanKind ? String(span.spanKind) : undefined,
+        statusCode: String(span.statusCode || "OK").toUpperCase(),
+        startTime,
+        endTime,
+        durationMs,
+        attributes:
+          typeof span.attributes === "object"
+            ? sanitizeAttributes(span.attributes) || undefined
+            : mapAttributesMap(span.attributes),
+        resourceAttributes:
+          typeof span.resourceAttributes === "object"
+            ? sanitizeAttributes(span.resourceAttributes) || undefined
+            : mapAttributesMap(span.resourceAttributes),
+      });
+    }
+  }
+
   return { spans, rejectedCount };
 }
 
@@ -198,6 +243,71 @@ export function normalizeOtlpLogs(
           eventHash,
         });
       }
+    }
+  }
+
+  // Also process simple flat array if body.logs is provided
+  if (Array.isArray(body?.logs)) {
+    for (const rec of body.logs) {
+      const timestamp = rec.timestamp
+        ? new Date(rec.timestamp)
+        : parseNanoToDate(rec.timeUnixNano || rec.time_unix_nano);
+      if (!timestamp || isNaN(timestamp.getTime())) {
+        rejectedCount++;
+        continue;
+      }
+
+      const severity = (
+        rec.severity ||
+        rec.severityText ||
+        rec.severity_text ||
+        "INFO"
+      ).toUpperCase();
+      const message =
+        rec.message !== undefined
+          ? String(rec.message)
+          : rec.body
+          ? String(otlpValueToAttribute(rec.body))
+          : "";
+      const serviceName = rec.serviceName || rec.service_name || "unknown-service";
+      const environment = rec.environment || "production";
+      const traceId = rec.traceId || rec.trace_id || undefined;
+      const spanId = rec.spanId || rec.span_id || undefined;
+      const attributes =
+        typeof rec.attributes === "object"
+          ? sanitizeAttributes(rec.attributes) || undefined
+          : mapAttributesMap(rec.attributes);
+      const resourceAttrs =
+        typeof rec.resourceAttributes === "object"
+          ? sanitizeAttributes(rec.resourceAttributes) || undefined
+          : mapAttributesMap(rec.resourceAttributes);
+
+      const eventHash = computeEventHash([
+        organizationId,
+        environment,
+        serviceName,
+        timestamp.toISOString(),
+        traceId,
+        spanId,
+        severity,
+        message,
+        attributes,
+        resourceAttrs,
+      ]);
+
+      logs.push({
+        organizationId,
+        timestamp,
+        serviceName,
+        environment,
+        severity,
+        message,
+        traceId,
+        spanId,
+        attributes,
+        resourceAttributes: resourceAttrs,
+        eventHash,
+      });
     }
   }
 

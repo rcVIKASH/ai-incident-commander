@@ -6,6 +6,7 @@ import {
   updateUser,
   deleteUser,
   userLogout,
+  getUserProfile
 } from "../controllers/user.controller.js";
 
 const userRouter = Router();
@@ -13,6 +14,8 @@ const userRouter = Router();
 userRouter.post("/signup", userSignup);
 userRouter.post("/login", userLogin);
 userRouter.post("/logout", authMiddleware,userLogout);
+
+userRouter.get("/me", authMiddleware, getUserProfile);
 
 // Update user routes (requires authentication)
 userRouter.post("/update", authMiddleware, updateUser);

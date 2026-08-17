@@ -283,3 +283,35 @@ export const userLogout = wrapAsync(async (req, res) => {
     message: "User logged out successfully",
   });
 });
+
+export const getUserProfile = wrapAsync(async (req, res) => {
+  const userId = req.user?.userId;
+
+  if (!userId || typeof userId !== "string") {
+    throw new ExpressError("User ID is required", 400);
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      id: true,
+      email: true,
+      firstName: true,
+      lastName: true,
+      role: true,
+      organizationId: true,
+      createdAt: true,
+      updatedAt: true,
+    },
+  });
+
+  if (!user) {
+    throw new ExpressError("User not found", 404);
+  }
+
+  res.status(200).json({
+    success: true,
+    message: "User profile retrieved successfully",
+    user,
+  });
+});

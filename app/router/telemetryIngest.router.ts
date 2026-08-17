@@ -4,6 +4,7 @@ import {
   ingestTraces,
   ingestLogs,
   ingestMetrics,
+  ingestBatch,
 } from "../controllers/telemetryIngest.controller.js";
 
 const router = Router();
@@ -14,5 +15,7 @@ router.use(telemetryAuthMiddleware);
 router.post("/traces", ingestTraces);
 router.post("/logs", ingestLogs);
 router.post("/metrics", ingestMetrics);
+router.post("/ingest", ingestBatch);
 
 export default router;
+

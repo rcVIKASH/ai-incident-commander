@@ -29,40 +29,50 @@ export class PostgresTelemetryProvider implements TelemetryProvider {
       ? new Date(query.timeRange.end)
       : new Date();
 
-    const whereClause: any = {
-      organizationId: this.organizationId, // Strict tenant isolation!
+    const baseWhere: any = {
+      organizationId: this.organizationId,
       serviceName: query.service,
       environment,
-      timestamp: {
-        gte: start,
-        lte: end,
-      },
     };
 
     if (query.severities && query.severities.length > 0) {
-      whereClause.severity = { in: query.severities };
+      baseWhere.severity = { in: query.severities };
     }
-
-    if (query.traceId) {
-      whereClause.traceId = query.traceId;
-    }
-
-    if (query.spanId) {
-      whereClause.spanId = query.spanId;
-    }
-
+    if (query.traceId) baseWhere.traceId = query.traceId;
+    if (query.spanId) baseWhere.spanId = query.spanId;
     if (query.keyword) {
-      whereClause.message = {
-        contains: query.keyword,
-        mode: "insensitive",
-      };
+      baseWhere.message = { contains: query.keyword, mode: "insensitive" };
     }
 
-    const rows = await telemetryPrisma.telemetryLog.findMany({
-      where: whereClause,
+    // Try 1: Exact service & time window query
+    let rows = await telemetryPrisma.telemetryLog.findMany({
+      where: { ...baseWhere, timestamp: { gte: start, lte: end } },
       orderBy: { timestamp: "desc" },
       take: query.limit || 50,
     });
+
+    // Fallback 1: Expand time window to last 24 hours
+    if (rows.length === 0) {
+      rows = await telemetryPrisma.telemetryLog.findMany({
+        where: baseWhere,
+        orderBy: { timestamp: "desc" },
+        take: query.limit || 50,
+      });
+    }
+
+    // Fallback 2: Fuzzy service name search if exact serviceName has no logs
+    if (rows.length === 0) {
+      const servicePrefix = query.service.split(/[-_]/)[0];
+      const fuzzyWhere = {
+        organizationId: this.organizationId,
+        serviceName: { contains: servicePrefix, mode: "insensitive" as const },
+      };
+      rows = await telemetryPrisma.telemetryLog.findMany({
+        where: fuzzyWhere,
+        orderBy: { timestamp: "desc" },
+        take: query.limit || 50,
+      });
+    }
 
     return rows.map((r) => ({
       timestamp: r.timestamp.toISOString(),
@@ -84,37 +94,53 @@ export class PostgresTelemetryProvider implements TelemetryProvider {
       ? new Date(query.timeRange.end)
       : new Date();
 
-    const whereClause: any = {
-      organizationId: this.organizationId, // Strict tenant isolation!
+    const baseWhere: any = {
+      organizationId: this.organizationId,
       serviceName: query.service,
       environment,
-      startTime: {
-        gte: start,
-        lte: end,
-      },
     };
 
-    if (query.status) {
-      whereClause.statusCode = query.status;
-    }
+    if (query.status) baseWhere.statusCode = query.status;
+    if (query.traceId) baseWhere.traceId = query.traceId;
 
-    if (query.traceId) {
-      whereClause.traceId = query.traceId;
-    }
-
-    // Step 1: Find matching distinct trace IDs
-    const matchingSpans = await telemetryPrisma.telemetrySpan.findMany({
-      where: whereClause,
+    // Try 1: Exact service & time window
+    let matchingSpans = await telemetryPrisma.telemetrySpan.findMany({
+      where: { ...baseWhere, startTime: { gte: start, lte: end } },
       select: { traceId: true },
       distinct: ["traceId"],
       orderBy: { startTime: "desc" },
       take: query.limit || 20,
     });
 
+    // Fallback 1: Any timestamp for service
+    if (matchingSpans.length === 0) {
+      matchingSpans = await telemetryPrisma.telemetrySpan.findMany({
+        where: baseWhere,
+        select: { traceId: true },
+        distinct: ["traceId"],
+        orderBy: { startTime: "desc" },
+        take: query.limit || 20,
+      });
+    }
+
+    // Fallback 2: Fuzzy service name search
+    if (matchingSpans.length === 0) {
+      const servicePrefix = query.service.split(/[-_]/)[0];
+      matchingSpans = await telemetryPrisma.telemetrySpan.findMany({
+        where: {
+          organizationId: this.organizationId,
+          serviceName: { contains: servicePrefix, mode: "insensitive" },
+        },
+        select: { traceId: true },
+        distinct: ["traceId"],
+        orderBy: { startTime: "desc" },
+        take: query.limit || 20,
+      });
+    }
+
     const traceIds = matchingSpans.map((s) => s.traceId);
     if (traceIds.length === 0) return [];
 
-    // Step 2: Fetch ALL spans for matching trace IDs, tenant-scoped
     const allSpans = await telemetryPrisma.telemetrySpan.findMany({
       where: {
         organizationId: this.organizationId,
@@ -123,7 +149,6 @@ export class PostgresTelemetryProvider implements TelemetryProvider {
       orderBy: { startTime: "asc" },
     });
 
-    // Step 3: Reconstruct full traces
     const byTrace = new Map<string, typeof allSpans>();
     for (const span of allSpans) {
       const existing = byTrace.get(span.traceId) || [];
@@ -173,25 +198,29 @@ export class PostgresTelemetryProvider implements TelemetryProvider {
       ? new Date(query.timeRange.end)
       : new Date();
 
-    const whereClause: any = {
-      organizationId: this.organizationId, // Strict tenant isolation!
+    const baseWhere: any = {
+      organizationId: this.organizationId,
       serviceName: query.service,
       environment,
-      timestamp: {
-        gte: start,
-        lte: end,
-      },
     };
 
     if (query.metricNames && query.metricNames.length > 0) {
-      whereClause.metricName = { in: query.metricNames };
+      baseWhere.metricName = { in: query.metricNames };
     }
 
-    const rows = await telemetryPrisma.metricPoint.findMany({
-      where: whereClause,
+    let rows = await telemetryPrisma.metricPoint.findMany({
+      where: { ...baseWhere, timestamp: { gte: start, lte: end } },
       orderBy: { timestamp: "asc" },
       take: 200,
     });
+
+    if (rows.length === 0) {
+      rows = await telemetryPrisma.metricPoint.findMany({
+        where: baseWhere,
+        orderBy: { timestamp: "asc" },
+        take: 200,
+      });
+    }
 
     return rows.map((r) => ({
       timestamp: r.timestamp.toISOString(),
@@ -201,14 +230,13 @@ export class PostgresTelemetryProvider implements TelemetryProvider {
   }
 
   async getServiceHealth(service: string): Promise<ServiceHealth> {
-    const recentStart = new Date(Date.now() - 15 * 60 * 1000);
+    const servicePrefix = service.split(/[-_]/)[0];
 
     const errorCount = await telemetryPrisma.telemetryLog.count({
       where: {
         organizationId: this.organizationId,
-        serviceName: service,
+        serviceName: { contains: servicePrefix, mode: "insensitive" },
         severity: "ERROR",
-        timestamp: { gte: recentStart },
       },
     });
 

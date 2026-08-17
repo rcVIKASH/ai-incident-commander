@@ -62,3 +62,36 @@ export const ingestMetrics = wrapAsync(async (req, res) => {
     partialSuccess: rejectedCount > 0 ? { rejectedRecords: rejectedCount } : {},
   });
 });
+
+export const ingestBatch = wrapAsync(async (req, res) => {
+  const organization = req.organization;
+  if (!organization) {
+    throw new ExpressError("Organization missing from request context", 401);
+  }
+
+  const { spans, rejectedCount: rejectedSpans } = normalizeOtlpSpans(req.body, organization.id);
+  const { logs, rejectedCount: rejectedLogs } = normalizeOtlpLogs(req.body, organization.id);
+  const { metrics, rejectedCount: rejectedMetrics } = normalizeOtlpMetrics(req.body, organization.id);
+
+  const spanResult = await repository.bulkInsertSpans(organization.id, spans);
+  const logResult = await repository.bulkInsertLogs(organization.id, logs);
+  const metricResult = await repository.bulkInsertMetrics(organization.id, metrics);
+
+  const totalRejected = rejectedSpans + rejectedLogs + rejectedMetrics;
+
+  console.log(
+    `📥 [Batch Telemetry Ingest] Org "${organization.id}": Saved ${spanResult.inserted} spans, ${logResult.inserted} logs, ${metricResult.inserted} metrics (${totalRejected} rejected)`
+  );
+
+  res.status(200).json({
+    success: true,
+    message: "Telemetry batch ingested successfully",
+    ingested: {
+      spans: spanResult.inserted,
+      logs: logResult.inserted,
+      metrics: metricResult.inserted,
+    },
+    rejected: totalRejected,
+  });
+});
+
