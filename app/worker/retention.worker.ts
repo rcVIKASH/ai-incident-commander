@@ -3,121 +3,235 @@ import { telemetryPrisma } from "../db/telemetryDb.js";
 const SPAN_RETENTION_DAYS = 7;
 const LOG_RETENTION_DAYS = 3;
 const METRIC_RETENTION_DAYS = 14;
+
 const BATCH_SIZE = 5000;
 const MAX_LOOP_ITERATIONS = 50;
 const ADVISORY_LOCK_ID = 892147102;
 
-/**
- * Retention worker: purges expired spans, logs, and metrics in bounded SQL batches.
- * Uses a PostgreSQL advisory lock to ensure only one worker runs at a time,
- * and loops until all expired rows are purged.
- */
-export async function purgeExpiredTelemetry(): Promise<{
+type PurgeResult = {
   deletedSpans: number;
   deletedLogs: number;
   deletedMetrics: number;
-}> {
-  console.log("🧹 [Retention Worker] Attempting telemetry purge job...");
+};
 
-  // Try to acquire PostgreSQL advisory lock
-  let hasLock = false;
-  try {
-    const lockRes = await telemetryPrisma.$queryRaw<
-      { pg_try_advisory_lock: boolean }[]
-    >`SELECT pg_try_advisory_lock(${ADVISORY_LOCK_ID})`;
-
-    hasLock = Boolean(lockRes?.[0]?.pg_try_advisory_lock);
-  } catch (err: any) {
-    console.warn("⚠️ [Retention Worker] Could not evaluate advisory lock, proceeding without lock:", err?.message || err);
-    hasLock = true; // Fallback if DB doesn't support advisory lock
-  }
-
-  if (!hasLock) {
-    console.log("🔒 [Retention Worker] Lock active — another worker is running retention purge. Skipping.");
-    return { deletedSpans: 0, deletedLogs: 0, deletedMetrics: 0 };
-  }
-
-  let deletedSpans = 0;
-  let deletedLogs = 0;
-  let deletedMetrics = 0;
+/**
+ * Retention worker:
+ * - Deletes expired spans, logs and metrics in batches.
+ * - Uses a PostgreSQL transaction-level advisory lock.
+ * - Only one retention worker can run at a time.
+ * - Fails safely if the lock cannot be acquired.
+ */
+export async function purgeExpiredTelemetry(): Promise<PurgeResult> {
+  console.log("🧹 [Retention Worker] Starting telemetry purge...");
 
   try {
-    const now = Date.now();
-    const spanCutoff = new Date(now - SPAN_RETENTION_DAYS * 24 * 60 * 60 * 1000);
-    const logCutoff = new Date(now - LOG_RETENTION_DAYS * 24 * 60 * 60 * 1000);
-    const metricCutoff = new Date(now - METRIC_RETENTION_DAYS * 24 * 60 * 60 * 1000);
+    const result = await telemetryPrisma.$transaction(
+      async (tx) => {
+        // --------------------------------------------------
+        // 1. Acquire transaction-level advisory lock
+        // --------------------------------------------------
+        const lockResult = await tx.$queryRaw<
+          { acquired: boolean }[]
+        >`SELECT pg_try_advisory_xact_lock(${ADVISORY_LOCK_ID}) AS acquired`;
 
-    // Loop until all expired spans are deleted
-    let iterations = 0;
-    while (iterations < MAX_LOOP_ITERATIONS) {
-      iterations++;
-      const expiredSpans = await telemetryPrisma.telemetrySpan.findMany({
-        where: { startTime: { lt: spanCutoff } },
-        select: { id: true },
-        take: BATCH_SIZE,
-      });
-      if (expiredSpans.length === 0) break;
+        const hasLock = Boolean(lockResult?.[0]?.acquired);
 
-      const ids = expiredSpans.map((s) => s.id);
-      const res = await telemetryPrisma.telemetrySpan.deleteMany({
-        where: { id: { in: ids } },
-      });
-      deletedSpans += res.count;
-      if (res.count < BATCH_SIZE) break;
-    }
+        if (!hasLock) {
+          console.log(
+            "🔒 [Retention Worker] Another retention worker is already running. Skipping.",
+          );
 
-    // Loop until all expired logs are deleted
-    iterations = 0;
-    while (iterations < MAX_LOOP_ITERATIONS) {
-      iterations++;
-      const expiredLogs = await telemetryPrisma.telemetryLog.findMany({
-        where: { timestamp: { lt: logCutoff } },
-        select: { id: true },
-        take: BATCH_SIZE,
-      });
-      if (expiredLogs.length === 0) break;
+          return {
+            deletedSpans: 0,
+            deletedLogs: 0,
+            deletedMetrics: 0,
+          };
+        }
 
-      const ids = expiredLogs.map((l) => l.id);
-      const res = await telemetryPrisma.telemetryLog.deleteMany({
-        where: { id: { in: ids } },
-      });
-      deletedLogs += res.count;
-      if (res.count < BATCH_SIZE) break;
-    }
+        // --------------------------------------------------
+        // 2. Calculate retention cutoffs
+        // --------------------------------------------------
+        const now = Date.now();
 
-    // Loop until all expired metrics are deleted
-    iterations = 0;
-    while (iterations < MAX_LOOP_ITERATIONS) {
-      iterations++;
-      const expiredMetrics = await telemetryPrisma.metricPoint.findMany({
-        where: { timestamp: { lt: metricCutoff } },
-        select: { id: true },
-        take: BATCH_SIZE,
-      });
-      if (expiredMetrics.length === 0) break;
+        const spanCutoff = new Date(
+          now - SPAN_RETENTION_DAYS * 24 * 60 * 60 * 1000,
+        );
 
-      const ids = expiredMetrics.map((m) => m.id);
-      const res = await telemetryPrisma.metricPoint.deleteMany({
-        where: { id: { in: ids } },
-      });
-      deletedMetrics += res.count;
-      if (res.count < BATCH_SIZE) break;
-    }
+        const logCutoff = new Date(
+          now - LOG_RETENTION_DAYS * 24 * 60 * 60 * 1000,
+        );
+
+        const metricCutoff = new Date(
+          now - METRIC_RETENTION_DAYS * 24 * 60 * 60 * 1000,
+        );
+
+        let deletedSpans = 0;
+        let deletedLogs = 0;
+        let deletedMetrics = 0;
+
+        // --------------------------------------------------
+        // 3. Delete expired spans
+        // --------------------------------------------------
+        let iterations = 0;
+
+        while (iterations < MAX_LOOP_ITERATIONS) {
+          iterations++;
+
+          const expiredSpans = await tx.telemetrySpan.findMany({
+            where: {
+              startTime: {
+                lt: spanCutoff,
+              },
+            },
+            select: {
+              id: true,
+            },
+            orderBy: {
+              startTime: "asc",
+            },
+            take: BATCH_SIZE,
+          });
+
+          if (expiredSpans.length === 0) {
+            break;
+          }
+
+          const ids = expiredSpans.map((span) => span.id);
+
+          const result = await tx.telemetrySpan.deleteMany({
+            where: {
+              id: {
+                in: ids,
+              },
+            },
+          });
+
+          deletedSpans += result.count;
+
+          if (result.count < BATCH_SIZE) {
+            break;
+          }
+        }
+
+        // --------------------------------------------------
+        // 4. Delete expired logs
+        // --------------------------------------------------
+        iterations = 0;
+
+        while (iterations < MAX_LOOP_ITERATIONS) {
+          iterations++;
+
+          const expiredLogs = await tx.telemetryLog.findMany({
+            where: {
+              timestamp: {
+                lt: logCutoff,
+              },
+            },
+            select: {
+              id: true,
+            },
+            orderBy: {
+              timestamp: "asc",
+            },
+            take: BATCH_SIZE,
+          });
+
+          if (expiredLogs.length === 0) {
+            break;
+          }
+
+          const ids = expiredLogs.map((log) => log.id);
+
+          const result = await tx.telemetryLog.deleteMany({
+            where: {
+              id: {
+                in: ids,
+              },
+            },
+          });
+
+          deletedLogs += result.count;
+
+          if (result.count < BATCH_SIZE) {
+            break;
+          }
+        }
+
+        // --------------------------------------------------
+        // 5. Delete expired metrics
+        // --------------------------------------------------
+        iterations = 0;
+
+        while (iterations < MAX_LOOP_ITERATIONS) {
+          iterations++;
+
+          const expiredMetrics = await tx.metricPoint.findMany({
+            where: {
+              timestamp: {
+                lt: metricCutoff,
+              },
+            },
+            select: {
+              id: true,
+            },
+            orderBy: {
+              timestamp: "asc",
+            },
+            take: BATCH_SIZE,
+          });
+
+          if (expiredMetrics.length === 0) {
+            break;
+          }
+
+          const ids = expiredMetrics.map((metric) => metric.id);
+
+          const result = await tx.metricPoint.deleteMany({
+            where: {
+              id: {
+                in: ids,
+              },
+            },
+          });
+
+          deletedMetrics += result.count;
+
+          if (result.count < BATCH_SIZE) {
+            break;
+          }
+        }
+
+        return {
+          deletedSpans,
+          deletedLogs,
+          deletedMetrics,
+        };
+      },
+      {
+        // The transaction can contain multiple batches.
+        // Give it enough time for large cleanup jobs.
+        timeout: 120_000,
+      },
+    );
 
     console.log(
-      `✅ [Retention Worker] Purge completed: ${deletedSpans} spans, ${deletedLogs} logs, ${deletedMetrics} metrics removed.`
+      `✅ [Retention Worker] Purge completed: ` +
+        `${result.deletedSpans} spans, ` +
+        `${result.deletedLogs} logs, ` +
+        `${result.deletedMetrics} metrics removed.`,
     );
-  } catch (err: any) {
-    console.error("❌ [Retention Worker] Purge error:", err?.message || err);
-  } finally {
-    if (hasLock) {
-      try {
-        await telemetryPrisma.$queryRaw`SELECT pg_advisory_unlock(${ADVISORY_LOCK_ID})`;
-      } catch {
-        // Ignore lock release errors
-      }
-    }
-  }
 
-  return { deletedSpans, deletedLogs, deletedMetrics };
+    return result;
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
+
+    console.error("❌ [Retention Worker] Purge failed:", message);
+
+    // Fail safely. Never pretend cleanup succeeded.
+    return {
+      deletedSpans: 0,
+      deletedLogs: 0,
+      deletedMetrics: 0,
+    };
+  }
 }
