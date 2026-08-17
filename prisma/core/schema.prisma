@@ -1,6 +1,6 @@
 generator client {
   provider = "prisma-client"
-  output   = "../app/db/generated/prisma"
+  output   = "../../app/db/generated/core-prisma"
 }
 
 datasource db {
@@ -62,31 +62,35 @@ enum IncidentEventType {
 }
 
 model Incident {
-  id              String         @id @default(cuid())
-  organizationId  String
-  organization    Organization   @relation(fields: [organizationId], references: [id])
+  id                   String         @id @default(cuid())
+  organizationId       String
+  organization         Organization   @relation(fields: [organizationId], references: [id])
 
-  externalAlertId String?
-  service         String
-  severity        String
-  type            String
-  title           String
-  message         String?
-  status          IncidentStatus @default(RECEIVED)
-  startedAt       DateTime?
-  detectedAt      DateTime?
-  resolvedAt      DateTime?
-  source          String
-  metadata        Json?
+  externalAlertId      String?
+  service              String
+  environment          String         @default("production")
+  severity             String
+  type                 String
+  title                String
+  message              String?
+  status               IncidentStatus @default(RECEIVED)
+  startedAt            DateTime?
+  detectedAt           DateTime?
+  resolvedAt           DateTime?
+  telemetryWindowStart DateTime?
+  telemetryWindowEnd   DateTime?
+  source               String
+  metadata             Json?
 
-  events          IncidentEvent[]
+  events               IncidentEvent[]
 
-  createdAt       DateTime       @default(now())
-  updatedAt       DateTime       @updatedAt
+  createdAt            DateTime       @default(now())
+  updatedAt            DateTime       @updatedAt
 
   @@unique([organizationId, externalAlertId])
   @@index([organizationId, status])
   @@index([service])
+  @@index([environment])
   @@index([severity])
   @@index([createdAt])
 }
@@ -105,12 +109,19 @@ model IncidentEvent {
   @@index([incidentId, timestamp])
 }
 
+enum ApiKeyScope {
+  DASHBOARD_API
+  ALERT_WEBHOOK
+  TELEMETRY_INGEST
+}
+
 model ApiKey {
   id             String       @id @default(cuid())
   name           String
   keyHash        String       @unique
   organizationId String
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  scope          ApiKeyScope  @default(DASHBOARD_API)
 
   createdAt      DateTime     @default(now())
   lastUsedAt     DateTime?

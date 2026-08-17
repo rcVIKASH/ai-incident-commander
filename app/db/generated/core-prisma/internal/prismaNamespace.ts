@@ -401,10 +401,7 @@ export const ModelName = {
   User: 'User',
   Incident: 'Incident',
   IncidentEvent: 'IncidentEvent',
-  ApiKey: 'ApiKey',
-  TelemetrySpan: 'TelemetrySpan',
-  TelemetryLog: 'TelemetryLog',
-  MetricPoint: 'MetricPoint'
+  ApiKey: 'ApiKey'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -420,7 +417,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "organization" | "user" | "incident" | "incidentEvent" | "apiKey" | "telemetrySpan" | "telemetryLog" | "metricPoint"
+    modelProps: "organization" | "user" | "incident" | "incidentEvent" | "apiKey"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -794,228 +791,6 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
-    TelemetrySpan: {
-      payload: Prisma.$TelemetrySpanPayload<ExtArgs>
-      fields: Prisma.TelemetrySpanFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.TelemetrySpanFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TelemetrySpanPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.TelemetrySpanFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TelemetrySpanPayload>
-        }
-        findFirst: {
-          args: Prisma.TelemetrySpanFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TelemetrySpanPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.TelemetrySpanFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TelemetrySpanPayload>
-        }
-        findMany: {
-          args: Prisma.TelemetrySpanFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TelemetrySpanPayload>[]
-        }
-        create: {
-          args: Prisma.TelemetrySpanCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TelemetrySpanPayload>
-        }
-        createMany: {
-          args: Prisma.TelemetrySpanCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        createManyAndReturn: {
-          args: Prisma.TelemetrySpanCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TelemetrySpanPayload>[]
-        }
-        delete: {
-          args: Prisma.TelemetrySpanDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TelemetrySpanPayload>
-        }
-        update: {
-          args: Prisma.TelemetrySpanUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TelemetrySpanPayload>
-        }
-        deleteMany: {
-          args: Prisma.TelemetrySpanDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.TelemetrySpanUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateManyAndReturn: {
-          args: Prisma.TelemetrySpanUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TelemetrySpanPayload>[]
-        }
-        upsert: {
-          args: Prisma.TelemetrySpanUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TelemetrySpanPayload>
-        }
-        aggregate: {
-          args: Prisma.TelemetrySpanAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateTelemetrySpan>
-        }
-        groupBy: {
-          args: Prisma.TelemetrySpanGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.TelemetrySpanGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.TelemetrySpanCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.TelemetrySpanCountAggregateOutputType> | number
-        }
-      }
-    }
-    TelemetryLog: {
-      payload: Prisma.$TelemetryLogPayload<ExtArgs>
-      fields: Prisma.TelemetryLogFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.TelemetryLogFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TelemetryLogPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.TelemetryLogFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TelemetryLogPayload>
-        }
-        findFirst: {
-          args: Prisma.TelemetryLogFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TelemetryLogPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.TelemetryLogFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TelemetryLogPayload>
-        }
-        findMany: {
-          args: Prisma.TelemetryLogFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TelemetryLogPayload>[]
-        }
-        create: {
-          args: Prisma.TelemetryLogCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TelemetryLogPayload>
-        }
-        createMany: {
-          args: Prisma.TelemetryLogCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        createManyAndReturn: {
-          args: Prisma.TelemetryLogCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TelemetryLogPayload>[]
-        }
-        delete: {
-          args: Prisma.TelemetryLogDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TelemetryLogPayload>
-        }
-        update: {
-          args: Prisma.TelemetryLogUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TelemetryLogPayload>
-        }
-        deleteMany: {
-          args: Prisma.TelemetryLogDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.TelemetryLogUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateManyAndReturn: {
-          args: Prisma.TelemetryLogUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TelemetryLogPayload>[]
-        }
-        upsert: {
-          args: Prisma.TelemetryLogUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TelemetryLogPayload>
-        }
-        aggregate: {
-          args: Prisma.TelemetryLogAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateTelemetryLog>
-        }
-        groupBy: {
-          args: Prisma.TelemetryLogGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.TelemetryLogGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.TelemetryLogCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.TelemetryLogCountAggregateOutputType> | number
-        }
-      }
-    }
-    MetricPoint: {
-      payload: Prisma.$MetricPointPayload<ExtArgs>
-      fields: Prisma.MetricPointFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.MetricPointFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MetricPointPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.MetricPointFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MetricPointPayload>
-        }
-        findFirst: {
-          args: Prisma.MetricPointFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MetricPointPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.MetricPointFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MetricPointPayload>
-        }
-        findMany: {
-          args: Prisma.MetricPointFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MetricPointPayload>[]
-        }
-        create: {
-          args: Prisma.MetricPointCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MetricPointPayload>
-        }
-        createMany: {
-          args: Prisma.MetricPointCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        createManyAndReturn: {
-          args: Prisma.MetricPointCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MetricPointPayload>[]
-        }
-        delete: {
-          args: Prisma.MetricPointDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MetricPointPayload>
-        }
-        update: {
-          args: Prisma.MetricPointUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MetricPointPayload>
-        }
-        deleteMany: {
-          args: Prisma.MetricPointDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.MetricPointUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateManyAndReturn: {
-          args: Prisma.MetricPointUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MetricPointPayload>[]
-        }
-        upsert: {
-          args: Prisma.MetricPointUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MetricPointPayload>
-        }
-        aggregate: {
-          args: Prisma.MetricPointAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateMetricPoint>
-        }
-        groupBy: {
-          args: Prisma.MetricPointGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.MetricPointGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.MetricPointCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.MetricPointCountAggregateOutputType> | number
-        }
-      }
-    }
   }
 } & {
   other: {
@@ -1133,63 +908,6 @@ export const ApiKeyScalarFieldEnum = {
 } as const
 
 export type ApiKeyScalarFieldEnum = (typeof ApiKeyScalarFieldEnum)[keyof typeof ApiKeyScalarFieldEnum]
-
-
-export const TelemetrySpanScalarFieldEnum = {
-  id: 'id',
-  organizationId: 'organizationId',
-  traceId: 'traceId',
-  spanId: 'spanId',
-  parentSpanId: 'parentSpanId',
-  serviceName: 'serviceName',
-  environment: 'environment',
-  operationName: 'operationName',
-  spanKind: 'spanKind',
-  statusCode: 'statusCode',
-  startTime: 'startTime',
-  endTime: 'endTime',
-  durationMs: 'durationMs',
-  attributes: 'attributes',
-  resourceAttributes: 'resourceAttributes',
-  ingestedAt: 'ingestedAt'
-} as const
-
-export type TelemetrySpanScalarFieldEnum = (typeof TelemetrySpanScalarFieldEnum)[keyof typeof TelemetrySpanScalarFieldEnum]
-
-
-export const TelemetryLogScalarFieldEnum = {
-  id: 'id',
-  organizationId: 'organizationId',
-  timestamp: 'timestamp',
-  serviceName: 'serviceName',
-  environment: 'environment',
-  severity: 'severity',
-  message: 'message',
-  traceId: 'traceId',
-  spanId: 'spanId',
-  attributes: 'attributes',
-  resourceAttributes: 'resourceAttributes',
-  ingestedAt: 'ingestedAt'
-} as const
-
-export type TelemetryLogScalarFieldEnum = (typeof TelemetryLogScalarFieldEnum)[keyof typeof TelemetryLogScalarFieldEnum]
-
-
-export const MetricPointScalarFieldEnum = {
-  id: 'id',
-  organizationId: 'organizationId',
-  timestamp: 'timestamp',
-  serviceName: 'serviceName',
-  environment: 'environment',
-  metricName: 'metricName',
-  metricType: 'metricType',
-  value: 'value',
-  attributes: 'attributes',
-  resourceAttributes: 'resourceAttributes',
-  ingestedAt: 'ingestedAt'
-} as const
-
-export type MetricPointScalarFieldEnum = (typeof MetricPointScalarFieldEnum)[keyof typeof MetricPointScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -1334,20 +1052,6 @@ export type EnumApiKeyScopeFieldRefInput<$PrismaModel> = FieldRefInputType<$Pris
  * Reference to a field of type 'ApiKeyScope[]'
  */
 export type ListEnumApiKeyScopeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ApiKeyScope[]'>
-    
-
-
-/**
- * Reference to a field of type 'Float'
- */
-export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
-    
-
-
-/**
- * Reference to a field of type 'Float[]'
- */
-export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
     
 
 
@@ -1520,9 +1224,6 @@ export type GlobalOmitConfig = {
   incident?: Prisma.IncidentOmit
   incidentEvent?: Prisma.IncidentEventOmit
   apiKey?: Prisma.ApiKeyOmit
-  telemetrySpan?: Prisma.TelemetrySpanOmit
-  telemetryLog?: Prisma.TelemetryLogOmit
-  metricPoint?: Prisma.MetricPointOmit
 }
 
 /* Types for Logging */

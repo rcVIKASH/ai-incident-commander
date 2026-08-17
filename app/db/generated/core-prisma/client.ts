@@ -66,18 +66,3 @@ export type IncidentEvent = Prisma.IncidentEventModel
  * 
  */
 export type ApiKey = Prisma.ApiKeyModel
-/**
- * Model TelemetrySpan
- * 
- */
-export type TelemetrySpan = Prisma.TelemetrySpanModel
-/**
- * Model TelemetryLog
- * 
- */
-export type TelemetryLog = Prisma.TelemetryLogModel
-/**
- * Model MetricPoint
- * 
- */
-export type MetricPoint = Prisma.MetricPointModel

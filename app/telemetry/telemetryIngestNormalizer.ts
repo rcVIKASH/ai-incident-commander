@@ -1,0 +1,208 @@
+import { sanitizeAttributes } from "../utils/privacy.js";
+
+function parseNanoToDate(nanos: string | number | undefined): Date {
+  if (!nanos) return new Date();
+  try {
+    const numNanos = typeof nanos === "string" ? BigInt(nanos) : BigInt(nanos);
+    return new Date(Number(numNanos / 1_000_000n));
+  } catch {
+    return new Date();
+  }
+}
+
+function otlpValueToAttribute(value: any): any {
+  if (!value || typeof value !== "object") return value;
+  if ("stringValue" in value) return value.stringValue;
+  if ("boolValue" in value) return value.boolValue;
+  if ("intValue" in value) return Number(value.intValue);
+  if ("doubleValue" in value) return value.doubleValue;
+  return String(value);
+}
+
+function mapAttributesMap(attrs?: any[]): Record<string, any> | undefined {
+  if (!attrs || !Array.isArray(attrs) || attrs.length === 0) return undefined;
+  const out: Record<string, any> = {};
+  for (const { key, value } of attrs) {
+    if (key) out[key] = otlpValueToAttribute(value);
+  }
+  return sanitizeAttributes(out) || undefined;
+}
+
+function extractResourceService(resource?: any): string {
+  const attrs = resource?.attributes || [];
+  const match = attrs.find((a: any) => a.key === "service.name");
+  return match ? String(otlpValueToAttribute(match.value)) : "unknown-service";
+}
+
+function extractResourceEnvironment(resource?: any): string {
+  const attrs = resource?.attributes || [];
+  const match = attrs.find(
+    (a: any) => a.key === "deployment.environment.name" || a.key === "environment"
+  );
+  return match ? String(otlpValueToAttribute(match.value)) : "production";
+}
+
+export type IngestSpanInput = {
+  organizationId: string;
+  traceId: string;
+  spanId: string;
+  parentSpanId?: string;
+  serviceName: string;
+  environment: string;
+  operationName: string;
+  spanKind?: string;
+  statusCode: string;
+  startTime: Date;
+  endTime: Date;
+  durationMs: number;
+  attributes?: Record<string, any>;
+  resourceAttributes?: Record<string, any>;
+};
+
+export function normalizeOtlpSpans(
+  body: any,
+  organizationId: string
+): IngestSpanInput[] {
+  const out: IngestSpanInput[] = [];
+  const resourceSpans = body?.resourceSpans || body?.resource_spans || [];
+
+  for (const rs of resourceSpans) {
+    const serviceName = extractResourceService(rs.resource);
+    const environment = extractResourceEnvironment(rs.resource);
+    const resourceAttrs = mapAttributesMap(rs.resource?.attributes);
+
+    for (const scope of rs.scopeSpans || rs.scope_spans || []) {
+      for (const span of scope.spans || []) {
+        const startTime = parseNanoToDate(span.startTimeUnixNano || span.start_time_unix_nano);
+        const endTime = parseNanoToDate(span.endTimeUnixNano || span.end_time_unix_nano);
+        const durationMs = Math.max(0, endTime.getTime() - startTime.getTime());
+
+        const statusCodeNum = span.status?.code ?? 0;
+        const statusCodeStr = statusCodeNum === 2 ? "ERROR" : statusCodeNum === 1 ? "OK" : "UNSET";
+
+        out.push({
+          organizationId,
+          traceId: span.traceId || span.trace_id || "",
+          spanId: span.spanId || span.span_id || "",
+          parentSpanId: span.parentSpanId || span.parent_span_id || undefined,
+          serviceName,
+          environment,
+          operationName: span.name || "unnamed_operation",
+          spanKind: span.kind ? String(span.kind) : undefined,
+          statusCode: statusCodeStr,
+          startTime,
+          endTime,
+          durationMs,
+          attributes: mapAttributesMap(span.attributes),
+          resourceAttributes: resourceAttrs,
+        });
+      }
+    }
+  }
+
+  return out;
+}
+
+export type IngestLogInput = {
+  organizationId: string;
+  timestamp: Date;
+  serviceName: string;
+  environment: string;
+  severity: string;
+  message: string;
+  traceId?: string;
+  spanId?: string;
+  attributes?: Record<string, any>;
+  resourceAttributes?: Record<string, any>;
+};
+
+export function normalizeOtlpLogs(
+  body: any,
+  organizationId: string
+): IngestLogInput[] {
+  const out: IngestLogInput[] = [];
+  const resourceLogs = body?.resourceLogs || body?.resource_logs || [];
+
+  for (const rl of resourceLogs) {
+    const serviceName = extractResourceService(rl.resource);
+    const environment = extractResourceEnvironment(rl.resource);
+    const resourceAttrs = mapAttributesMap(rl.resource?.attributes);
+
+    for (const scope of rl.scopeLogs || rl.scope_logs || []) {
+      for (const rec of scope.logRecords || scope.log_records || []) {
+        const timestamp = parseNanoToDate(rec.timeUnixNano || rec.time_unix_nano);
+        const severity = rec.severityText || rec.severity_text || "INFO";
+        const message = rec.body ? String(otlpValueToAttribute(rec.body)) : "";
+
+        out.push({
+          organizationId,
+          timestamp,
+          serviceName,
+          environment,
+          severity: severity.toUpperCase(),
+          message,
+          traceId: rec.traceId || rec.trace_id || undefined,
+          spanId: rec.spanId || rec.span_id || undefined,
+          attributes: mapAttributesMap(rec.attributes),
+          resourceAttributes: resourceAttrs,
+        });
+      }
+    }
+  }
+
+  return out;
+}
+
+export type IngestMetricInput = {
+  organizationId: string;
+  timestamp: Date;
+  serviceName: string;
+  environment: string;
+  metricName: string;
+  metricType: string;
+  value: number;
+  attributes?: Record<string, any>;
+  resourceAttributes?: Record<string, any>;
+};
+
+export function normalizeOtlpMetrics(
+  body: any,
+  organizationId: string
+): IngestMetricInput[] {
+  const out: IngestMetricInput[] = [];
+  const resourceMetrics = body?.resourceMetrics || body?.resource_metrics || [];
+
+  for (const rm of resourceMetrics) {
+    const serviceName = extractResourceService(rm.resource);
+    const environment = extractResourceEnvironment(rm.resource);
+    const resourceAttrs = mapAttributesMap(rm.resource?.attributes);
+
+    for (const scope of rm.scopeMetrics || rm.scope_metrics || []) {
+      for (const metric of scope.metrics || []) {
+        const metricName = metric.name || "unnamed_metric";
+        // v1 supports Gauge and Sum points
+        const dataPoints = metric.gauge?.dataPoints || metric.sum?.dataPoints || metric.gauge?.data_points || metric.sum?.data_points || [];
+        const metricType = metric.gauge ? "gauge" : metric.sum ? "sum" : "unknown";
+
+        for (const dp of dataPoints) {
+          const timestamp = parseNanoToDate(dp.timeUnixNano || dp.time_unix_nano);
+          const value = dp.asDouble ?? dp.as_double ?? (dp.asInt !== undefined ? Number(dp.asInt) : dp.as_int !== undefined ? Number(dp.as_int) : 0);
+
+          out.push({
+            organizationId,
+            timestamp,
+            serviceName,
+            environment,
+            metricName,
+            metricType,
+            value: Number(value),
+            attributes: mapAttributesMap(dp.attributes),
+            resourceAttributes: resourceAttrs,
+          });
+        }
+      }
+    }
+  }
+
+  return out;
+}

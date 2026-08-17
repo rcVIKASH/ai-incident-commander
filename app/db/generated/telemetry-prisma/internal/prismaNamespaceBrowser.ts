@@ -51,11 +51,6 @@ export const AnyNull = runtime.AnyNull
 
 
 export const ModelName = {
-  Organization: 'Organization',
-  User: 'User',
-  Incident: 'Incident',
-  IncidentEvent: 'IncidentEvent',
-  ApiKey: 'ApiKey',
   TelemetrySpan: 'TelemetrySpan',
   TelemetryLog: 'TelemetryLog',
   MetricPoint: 'MetricPoint'
@@ -75,86 +70,6 @@ export const TransactionIsolationLevel = runtime.makeStrictEnum({
 } as const)
 
 export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
-
-
-export const OrganizationScalarFieldEnum = {
-  id: 'id',
-  name: 'name',
-  slug: 'slug',
-  description: 'description',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type OrganizationScalarFieldEnum = (typeof OrganizationScalarFieldEnum)[keyof typeof OrganizationScalarFieldEnum]
-
-
-export const UserScalarFieldEnum = {
-  id: 'id',
-  email: 'email',
-  password: 'password',
-  firstName: 'firstName',
-  lastName: 'lastName',
-  role: 'role',
-  organizationId: 'organizationId',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
-
-
-export const IncidentScalarFieldEnum = {
-  id: 'id',
-  organizationId: 'organizationId',
-  externalAlertId: 'externalAlertId',
-  service: 'service',
-  environment: 'environment',
-  severity: 'severity',
-  type: 'type',
-  title: 'title',
-  message: 'message',
-  status: 'status',
-  startedAt: 'startedAt',
-  detectedAt: 'detectedAt',
-  resolvedAt: 'resolvedAt',
-  telemetryWindowStart: 'telemetryWindowStart',
-  telemetryWindowEnd: 'telemetryWindowEnd',
-  source: 'source',
-  metadata: 'metadata',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type IncidentScalarFieldEnum = (typeof IncidentScalarFieldEnum)[keyof typeof IncidentScalarFieldEnum]
-
-
-export const IncidentEventScalarFieldEnum = {
-  id: 'id',
-  incidentId: 'incidentId',
-  type: 'type',
-  message: 'message',
-  timestamp: 'timestamp',
-  metadata: 'metadata',
-  actor: 'actor'
-} as const
-
-export type IncidentEventScalarFieldEnum = (typeof IncidentEventScalarFieldEnum)[keyof typeof IncidentEventScalarFieldEnum]
-
-
-export const ApiKeyScalarFieldEnum = {
-  id: 'id',
-  name: 'name',
-  keyHash: 'keyHash',
-  organizationId: 'organizationId',
-  scope: 'scope',
-  createdAt: 'createdAt',
-  lastUsedAt: 'lastUsedAt',
-  expiresAt: 'expiresAt',
-  revokedAt: 'revokedAt'
-} as const
-
-export type ApiKeyScalarFieldEnum = (typeof ApiKeyScalarFieldEnum)[keyof typeof ApiKeyScalarFieldEnum]
 
 
 export const TelemetrySpanScalarFieldEnum = {
@@ -238,14 +153,6 @@ export const QueryMode = {
 export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
 
 
-export const NullsOrder = {
-  first: 'first',
-  last: 'last'
-} as const
-
-export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
-
-
 export const JsonNullValueFilter = {
   DbNull: DbNull,
   JsonNull: JsonNull,
@@ -253,4 +160,12 @@ export const JsonNullValueFilter = {
 } as const
 
 export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
+
+
+export const NullsOrder = {
+  first: 'first',
+  last: 'last'
+} as const
+
+export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
 

@@ -4,7 +4,10 @@
   "type": "module",
   "main": "dist/index.js",
   "scripts": {
-    "build": "tsc",
+    "prisma:generate:core": "prisma generate --schema=prisma/core/schema.prisma",
+    "prisma:generate:telemetry": "prisma generate --schema=prisma/telemetry/schema.prisma",
+    "prisma:generate": "npm run prisma:generate:core && npm run prisma:generate:telemetry",
+    "build": "npm run prisma:generate && tsc",
     "start": "node dist/index.js",
     "dev": "tsc && npm run start",
     "test:graph": "tsc && node dist/langGraph/testGraph.js"

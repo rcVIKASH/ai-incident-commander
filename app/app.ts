@@ -6,14 +6,16 @@ import incidentRouter from "./router/incident.router.js";
 import organizationRouter from "./router/organization.router.js";
 import apiKeyRouter from "./router/apiKey.router.js";
 import webhookRouter from "./router/webhook.router.js";
+import telemetryIngestRouter from "./router/telemetryIngest.router.js";
 
 const app = express();
 
 // middleware
-app.use(express.json());
+app.use(express.json({ limit: "5mb" }));
 app.use(cookieParser());
 
 // routes
+app.use("/v1", telemetryIngestRouter);
 app.use("/api/users", userRouter);
 app.use("/api/incidents", incidentRouter);
 app.use("/api/organizations", organizationRouter);

@@ -1,15 +1,22 @@
 import "dotenv/config";
 import { mainGraph } from "./mainGraph.js";
 import { evidenceCollector } from "./evidenceGraphNode/evidenceCollector.js";
+import { seedDemoTelemetry } from "../telemetry/demoCustomerApp.js";
 
 async function testGraphNode() {
   console.log("--------------------------------------------------");
-  console.log("🚀 Testing LangGraph Incident Classification + LLM-Driven Evidence Collector");
+  console.log("🚀 Testing LangGraph + PostgreSQL Telemetry Provider (commander_telemetry)");
   console.log("--------------------------------------------------\n");
 
+  // 1. Seed correlated telemetry in PostgreSQL database
+  const { organizationId } = await seedDemoTelemetry();
+
   const sampleIncident = {
+    incidentId: "inc-payment-db-timeout-101",
+    organizationId,
     alertId: "alert-otel-202",
     service: "payment-gateway",
+    environment: "production",
     severity: "HIGH",
     type: "LATENCY_SPIKE",
     title: "Payment service high latency detected",
@@ -21,24 +28,24 @@ async function testGraphNode() {
     },
   };
 
-  console.log("📥 1. Sample Alert Input:");
+  console.log("\n📥 1. Sample Alert Input:");
   console.log(JSON.stringify(sampleIncident, null, 2));
 
-  console.log("\n⚡ 2. Testing LLM-Driven Evidence Collector Subgraph (LLM selects tools):");
+  console.log("\n⚡ 2. Testing Standalone LLM-Driven Evidence Collector Subgraph (Postgres Provider):");
   try {
     const evidenceResult = await evidenceCollector.invoke({
       incident: sampleIncident,
     });
-    console.log("✅ Processed Telemetry Evidence Summary:");
+    console.log("✅ Processed Telemetry Evidence Summary from PostgreSQL:");
     console.log(evidenceResult.processedEvidence?.summaryText);
   } catch (err: any) {
     console.error("❌ Evidence Collector Error:", err.message);
   }
 
-  console.log("\n🔄 3. Full Main Graph Invoke (Classification -> LLM Evidence Agent -> Postgres Checkpointer):");
+  console.log("\n🔄 3. Full Main Graph Invoke (Classification -> Postgres Telemetry Agent -> Postgres Checkpointer):");
   const config = {
     configurable: {
-      thread_id: `thread-otel-${Date.now()}`,
+      thread_id: `${organizationId}:${sampleIncident.incidentId}`,
     },
   };
 
@@ -53,7 +60,7 @@ async function testGraphNode() {
     console.log("\n--- Classification Output ---");
     console.dir(graphResult.classification, { depth: null });
 
-    console.log("\n--- Calculated Telemetry Summary ---");
+    console.log("\n--- Calculated Telemetry Summary from PostgreSQL ---");
     console.log(graphResult.processedEvidence?.summaryText);
 
     console.log("\n🧠 4. Retrieving State from Postgres Checkpointer (Short-Term Memory):");

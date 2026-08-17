@@ -55,10 +55,7 @@ export const ModelName = {
   User: 'User',
   Incident: 'Incident',
   IncidentEvent: 'IncidentEvent',
-  ApiKey: 'ApiKey',
-  TelemetrySpan: 'TelemetrySpan',
-  TelemetryLog: 'TelemetryLog',
-  MetricPoint: 'MetricPoint'
+  ApiKey: 'ApiKey'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -155,63 +152,6 @@ export const ApiKeyScalarFieldEnum = {
 } as const
 
 export type ApiKeyScalarFieldEnum = (typeof ApiKeyScalarFieldEnum)[keyof typeof ApiKeyScalarFieldEnum]
-
-
-export const TelemetrySpanScalarFieldEnum = {
-  id: 'id',
-  organizationId: 'organizationId',
-  traceId: 'traceId',
-  spanId: 'spanId',
-  parentSpanId: 'parentSpanId',
-  serviceName: 'serviceName',
-  environment: 'environment',
-  operationName: 'operationName',
-  spanKind: 'spanKind',
-  statusCode: 'statusCode',
-  startTime: 'startTime',
-  endTime: 'endTime',
-  durationMs: 'durationMs',
-  attributes: 'attributes',
-  resourceAttributes: 'resourceAttributes',
-  ingestedAt: 'ingestedAt'
-} as const
-
-export type TelemetrySpanScalarFieldEnum = (typeof TelemetrySpanScalarFieldEnum)[keyof typeof TelemetrySpanScalarFieldEnum]
-
-
-export const TelemetryLogScalarFieldEnum = {
-  id: 'id',
-  organizationId: 'organizationId',
-  timestamp: 'timestamp',
-  serviceName: 'serviceName',
-  environment: 'environment',
-  severity: 'severity',
-  message: 'message',
-  traceId: 'traceId',
-  spanId: 'spanId',
-  attributes: 'attributes',
-  resourceAttributes: 'resourceAttributes',
-  ingestedAt: 'ingestedAt'
-} as const
-
-export type TelemetryLogScalarFieldEnum = (typeof TelemetryLogScalarFieldEnum)[keyof typeof TelemetryLogScalarFieldEnum]
-
-
-export const MetricPointScalarFieldEnum = {
-  id: 'id',
-  organizationId: 'organizationId',
-  timestamp: 'timestamp',
-  serviceName: 'serviceName',
-  environment: 'environment',
-  metricName: 'metricName',
-  metricType: 'metricType',
-  value: 'value',
-  attributes: 'attributes',
-  resourceAttributes: 'resourceAttributes',
-  ingestedAt: 'ingestedAt'
-} as const
-
-export type MetricPointScalarFieldEnum = (typeof MetricPointScalarFieldEnum)[keyof typeof MetricPointScalarFieldEnum]
 
 
 export const SortOrder = {

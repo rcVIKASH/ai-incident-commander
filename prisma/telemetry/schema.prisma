@@ -1,0 +1,69 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../../app/db/generated/telemetry-prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model TelemetrySpan {
+  id                 String   @id @default(cuid())
+  organizationId     String
+  traceId            String
+  spanId             String
+  parentSpanId       String?
+  serviceName        String
+  environment        String   @default("production")
+  operationName      String
+  spanKind           String?
+  statusCode         String   @default("OK")
+  startTime          DateTime
+  endTime            DateTime
+  durationMs         Float
+  attributes         Json?
+  resourceAttributes Json?
+  ingestedAt         DateTime @default(now())
+
+  @@unique([organizationId, traceId, spanId])
+  @@index([organizationId, serviceName, startTime])
+  @@index([organizationId, traceId])
+  @@index([organizationId, statusCode, startTime])
+  @@map("telemetry_spans")
+}
+
+model TelemetryLog {
+  id                 String   @id @default(cuid())
+  organizationId     String
+  timestamp          DateTime
+  serviceName        String
+  environment        String   @default("production")
+  severity           String
+  message            String
+  traceId            String?
+  spanId             String?
+  attributes         Json?
+  resourceAttributes Json?
+  ingestedAt         DateTime @default(now())
+
+  @@index([organizationId, serviceName, timestamp])
+  @@index([organizationId, traceId])
+  @@map("telemetry_logs")
+}
+
+model MetricPoint {
+  id                 String   @id @default(cuid())
+  organizationId     String
+  timestamp          DateTime
+  serviceName        String
+  environment        String   @default("production")
+  metricName         String
+  metricType         String   @default("gauge")
+  value              Float
+  attributes         Json?
+  resourceAttributes Json?
+  ingestedAt         DateTime @default(now())
+
+  @@index([organizationId, serviceName, metricName, timestamp])
+  @@map("metric_points")
+}
