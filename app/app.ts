@@ -7,6 +7,7 @@ import organizationRouter from "./router/organization.router.js";
 import apiKeyRouter from "./router/apiKey.router.js";
 import webhookRouter from "./router/webhook.router.js";
 import telemetryIngestRouter from "./router/telemetryIngest.router.js";
+import deploymentRouter from "./router/deployment.router.js";
 import { startRetentionJob } from "./jobs/retentionJob.js";
 
 const app = express();
@@ -27,6 +28,7 @@ app.use("/api/incidents", incidentRouter);
 app.use("/api/organizations", organizationRouter);
 app.use("/api/api-keys", apiKeyRouter);
 app.use("/api/webhooks", webhookRouter);
+app.use("/api/deployments", deploymentRouter);
 
 // 404 handler — must come AFTER all routes
 app.use((req: Request, res: Response, next: NextFunction) => {

@@ -2,6 +2,7 @@ import { Annotation, MessagesAnnotation } from "@langchain/langgraph";
 import { IncidentInput } from "./incidentGraphNode/incidentclassificationState.js";
 import { IncidentClassification } from "../validators/incidentClassification.validation.js";
 import { RawEvidence, ProcessedEvidence } from "../types/evidence.js";
+import { DeploymentRecord, DeploymentSummary } from "../types/deployment.js";
 
 /**
  * Main Central State schema for the root AI Incident Commander graph (mainGraph)
@@ -13,7 +14,10 @@ export const MainState = Annotation.Root({
   classification: Annotation<IncidentClassification | undefined>(),
   rawEvidence: Annotation<RawEvidence | undefined>(),
   processedEvidence: Annotation<ProcessedEvidence | undefined>(),
+  rawDeployments: Annotation<DeploymentRecord[] | undefined>(),
+  deploymentSummary: Annotation<DeploymentSummary | undefined>(),
   error: Annotation<string | undefined>(),
 });
 
 export type MainStateType = typeof MainState.State;
+
