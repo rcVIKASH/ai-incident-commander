@@ -9,6 +9,7 @@ import webhookRouter from "./router/webhook.router.js";
 import telemetryIngestRouter from "./router/telemetryIngest.router.js";
 import deploymentRouter from "./router/deployment.router.js";
 import integrationRouter from "./router/integration.routes.js";
+import { knowledgeRouter } from "./router/knowledge.router.js";
 import { startRetentionJob } from "./jobs/retentionJob.js";
 
 const app = express();
@@ -31,6 +32,7 @@ app.use("/api/api-keys", apiKeyRouter);
 app.use("/api/webhooks", webhookRouter);
 app.use("/api/deployments", deploymentRouter);
 app.use("/api/integrations", integrationRouter);
+app.use("/api/knowledge", knowledgeRouter);
 
 // 404 handler — must come AFTER all routes
 app.use((req: Request, res: Response, next: NextFunction) => {

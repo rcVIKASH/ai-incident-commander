@@ -1,5 +1,5 @@
 import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
-import { readFileSync } from "fs";
+
 
 
 export const chunkMarkdown = async (mdContent: string) => {

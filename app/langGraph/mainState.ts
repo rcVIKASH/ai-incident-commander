@@ -4,6 +4,8 @@ import { IncidentClassification } from "../validators/incidentClassification.val
 import { RawEvidence, ProcessedEvidence } from "../types/evidence.js";
 import { DeploymentRecord, DeploymentSummary } from "../types/deployment.js";
 
+import { RetrievedKnowledge } from "../types/rag.js";
+
 /**
  * Main Central State schema for the root AI Incident Commander graph (mainGraph)
  * Aggregates and orchestrates shared state keys passed between subgraphs
@@ -16,6 +18,7 @@ export const MainState = Annotation.Root({
   processedEvidence: Annotation<ProcessedEvidence | undefined>(),
   rawDeployments: Annotation<DeploymentRecord[] | undefined>(),
   deploymentSummary: Annotation<DeploymentSummary | undefined>(),
+  retrievedKnowledge: Annotation<RetrievedKnowledge[] | undefined>(),
   error: Annotation<string | undefined>(),
 });
 
