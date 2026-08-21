@@ -52,6 +52,7 @@ export const AnyNull = runtime.AnyNull
 
 export const ModelName = {
   Organization: 'Organization',
+  OrganizationIntegration: 'OrganizationIntegration',
   User: 'User',
   Incident: 'Incident',
   IncidentEvent: 'IncidentEvent',
@@ -84,6 +85,25 @@ export const OrganizationScalarFieldEnum = {
 } as const
 
 export type OrganizationScalarFieldEnum = (typeof OrganizationScalarFieldEnum)[keyof typeof OrganizationScalarFieldEnum]
+
+
+export const OrganizationIntegrationScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  provider: 'provider',
+  status: 'status',
+  externalAccountId: 'externalAccountId',
+  externalAccountName: 'externalAccountName',
+  accessTokenEncrypted: 'accessTokenEncrypted',
+  refreshTokenEncrypted: 'refreshTokenEncrypted',
+  tokenExpiresAt: 'tokenExpiresAt',
+  scopes: 'scopes',
+  metadata: 'metadata',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type OrganizationIntegrationScalarFieldEnum = (typeof OrganizationIntegrationScalarFieldEnum)[keyof typeof OrganizationIntegrationScalarFieldEnum]
 
 
 export const UserScalarFieldEnum = {

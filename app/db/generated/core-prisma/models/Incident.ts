@@ -683,10 +683,6 @@ export type EnumIncidentStatusFieldUpdateOperationsInput = {
   set?: $Enums.IncidentStatus
 }
 
-export type NullableDateTimeFieldUpdateOperationsInput = {
-  set?: Date | string | null
-}
-
 export type IncidentCreateNestedOneWithoutEventsInput = {
   create?: Prisma.XOR<Prisma.IncidentCreateWithoutEventsInput, Prisma.IncidentUncheckedCreateWithoutEventsInput>
   connectOrCreate?: Prisma.IncidentCreateOrConnectWithoutEventsInput

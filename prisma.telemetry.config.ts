@@ -7,6 +7,6 @@ export default defineConfig({
     path: "prisma/telemetry/migrations",
   },
   datasource: {
-    url: process.env["DATABASE_URL_TELEMETRY"] || process.env["TELEMETRY_DATABASE_URL"],
+    url: process.env["DATABASE_URL_TELEMETRY"],
   },
 });

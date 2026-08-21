@@ -10,6 +10,7 @@ import { EvidenceState, EvidenceStateType } from "./evidenceState.js";
 import { processEvidence } from "./evidenceProcessor.js";
 import { RawEvidence } from "../../types/evidence.js";
 import { getTelemetryTools } from "../tools/telemetryTools.js";
+import { createGetRecentCommitsTool, createGetRecentPullRequestsTool } from "../tools/githubTools.js";
 import { PostgresTelemetryProvider } from "./providers/postgresTelemetryProvider.js";
 import { model4 } from "../llm.js";
 
@@ -36,7 +37,12 @@ const evidenceAgent = async (
 
   const provider = new PostgresTelemetryProvider(orgId);
   const telemetryTools = getTelemetryTools(provider);
-  const modelWithTools = model4.bindTools(telemetryTools);
+  const githubTools = [
+    createGetRecentCommitsTool(orgId),
+    createGetRecentPullRequestsTool(orgId),
+  ];
+  const allTools = [...telemetryTools, ...githubTools];
+  const modelWithTools = model4.bindTools(allTools);
 
   const messages = state.messages || [];
 
@@ -151,8 +157,13 @@ const executeToolsNode = async (
     throw new Error("Cannot execute tools: Missing organizationId in incident state");
   }
   const provider = new PostgresTelemetryProvider(orgId);
-  const tools = getTelemetryTools(provider);
-  const toolNode = new ToolNode(tools, { handleToolErrors: true });
+  const telemetryTools = getTelemetryTools(provider);
+  const githubTools = [
+    createGetRecentCommitsTool(orgId),
+    createGetRecentPullRequestsTool(orgId),
+  ];
+  const allTools = [...telemetryTools, ...githubTools];
+  const toolNode = new ToolNode(allTools, { handleToolErrors: true });
   return toolNode.invoke(state);
 };
 

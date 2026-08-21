@@ -9,6 +9,24 @@
 * 🟢 You can import this file directly.
 */
 
+export const IntegrationProvider = {
+  GITHUB: 'GITHUB',
+  SLACK: 'SLACK'
+} as const
+
+export type IntegrationProvider = (typeof IntegrationProvider)[keyof typeof IntegrationProvider]
+
+
+export const IntegrationStatus = {
+  ACTIVE: 'ACTIVE',
+  REVOKED: 'REVOKED',
+  EXPIRED: 'EXPIRED',
+  ERROR: 'ERROR'
+} as const
+
+export type IntegrationStatus = (typeof IntegrationStatus)[keyof typeof IntegrationStatus]
+
+
 export const UserRole = {
   OWNER: 'OWNER',
   ADMIN: 'ADMIN',

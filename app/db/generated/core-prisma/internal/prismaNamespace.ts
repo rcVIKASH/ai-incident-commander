@@ -398,6 +398,7 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 
 export const ModelName = {
   Organization: 'Organization',
+  OrganizationIntegration: 'OrganizationIntegration',
   User: 'User',
   Incident: 'Incident',
   IncidentEvent: 'IncidentEvent',
@@ -417,7 +418,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "organization" | "user" | "incident" | "incidentEvent" | "apiKey"
+    modelProps: "organization" | "organizationIntegration" | "user" | "incident" | "incidentEvent" | "apiKey"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -492,6 +493,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.OrganizationCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.OrganizationCountAggregateOutputType> | number
+        }
+      }
+    }
+    OrganizationIntegration: {
+      payload: Prisma.$OrganizationIntegrationPayload<ExtArgs>
+      fields: Prisma.OrganizationIntegrationFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.OrganizationIntegrationFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OrganizationIntegrationPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.OrganizationIntegrationFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OrganizationIntegrationPayload>
+        }
+        findFirst: {
+          args: Prisma.OrganizationIntegrationFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OrganizationIntegrationPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.OrganizationIntegrationFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OrganizationIntegrationPayload>
+        }
+        findMany: {
+          args: Prisma.OrganizationIntegrationFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OrganizationIntegrationPayload>[]
+        }
+        create: {
+          args: Prisma.OrganizationIntegrationCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OrganizationIntegrationPayload>
+        }
+        createMany: {
+          args: Prisma.OrganizationIntegrationCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.OrganizationIntegrationCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OrganizationIntegrationPayload>[]
+        }
+        delete: {
+          args: Prisma.OrganizationIntegrationDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OrganizationIntegrationPayload>
+        }
+        update: {
+          args: Prisma.OrganizationIntegrationUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OrganizationIntegrationPayload>
+        }
+        deleteMany: {
+          args: Prisma.OrganizationIntegrationDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.OrganizationIntegrationUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.OrganizationIntegrationUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OrganizationIntegrationPayload>[]
+        }
+        upsert: {
+          args: Prisma.OrganizationIntegrationUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OrganizationIntegrationPayload>
+        }
+        aggregate: {
+          args: Prisma.OrganizationIntegrationAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateOrganizationIntegration>
+        }
+        groupBy: {
+          args: Prisma.OrganizationIntegrationGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.OrganizationIntegrationGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.OrganizationIntegrationCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.OrganizationIntegrationCountAggregateOutputType> | number
         }
       }
     }
@@ -842,6 +917,25 @@ export const OrganizationScalarFieldEnum = {
 export type OrganizationScalarFieldEnum = (typeof OrganizationScalarFieldEnum)[keyof typeof OrganizationScalarFieldEnum]
 
 
+export const OrganizationIntegrationScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  provider: 'provider',
+  status: 'status',
+  externalAccountId: 'externalAccountId',
+  externalAccountName: 'externalAccountName',
+  accessTokenEncrypted: 'accessTokenEncrypted',
+  refreshTokenEncrypted: 'refreshTokenEncrypted',
+  tokenExpiresAt: 'tokenExpiresAt',
+  scopes: 'scopes',
+  metadata: 'metadata',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type OrganizationIntegrationScalarFieldEnum = (typeof OrganizationIntegrationScalarFieldEnum)[keyof typeof OrganizationIntegrationScalarFieldEnum]
+
+
 export const UserScalarFieldEnum = {
   id: 'id',
   email: 'email',
@@ -986,6 +1080,48 @@ export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaM
 
 
 /**
+ * Reference to a field of type 'IntegrationProvider'
+ */
+export type EnumIntegrationProviderFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'IntegrationProvider'>
+    
+
+
+/**
+ * Reference to a field of type 'IntegrationProvider[]'
+ */
+export type ListEnumIntegrationProviderFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'IntegrationProvider[]'>
+    
+
+
+/**
+ * Reference to a field of type 'IntegrationStatus'
+ */
+export type EnumIntegrationStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'IntegrationStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'IntegrationStatus[]'
+ */
+export type ListEnumIntegrationStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'IntegrationStatus[]'>
+    
+
+
+/**
+ * Reference to a field of type 'Json'
+ */
+export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
+    
+
+
+/**
+ * Reference to a field of type 'QueryMode'
+ */
+export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
+    
+
+
+/**
  * Reference to a field of type 'UserRole'
  */
 export type EnumUserRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'UserRole'>
@@ -1010,20 +1146,6 @@ export type EnumIncidentStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$P
  * Reference to a field of type 'IncidentStatus[]'
  */
 export type ListEnumIncidentStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'IncidentStatus[]'>
-    
-
-
-/**
- * Reference to a field of type 'Json'
- */
-export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
-    
-
-
-/**
- * Reference to a field of type 'QueryMode'
- */
-export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
     
 
 
@@ -1220,6 +1342,7 @@ export interface PrismaClientOptionsWithAdapter extends PrismaClientBaseOptions 
 export type PrismaClientOptions = PrismaClientOptionsWithAccelerateUrl | PrismaClientOptionsWithAdapter
 export type GlobalOmitConfig = {
   organization?: Prisma.OrganizationOmit
+  organizationIntegration?: Prisma.OrganizationIntegrationOmit
   user?: Prisma.UserOmit
   incident?: Prisma.IncidentOmit
   incidentEvent?: Prisma.IncidentEventOmit

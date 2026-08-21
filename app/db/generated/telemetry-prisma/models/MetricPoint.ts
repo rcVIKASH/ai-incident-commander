@@ -43,8 +43,8 @@ export type MetricPointMinAggregateOutputType = {
   metricName: string | null
   metricType: string | null
   value: number | null
-  eventHash: string | null
   ingestedAt: Date | null
+  eventHash: string | null
 }
 
 export type MetricPointMaxAggregateOutputType = {
@@ -56,8 +56,8 @@ export type MetricPointMaxAggregateOutputType = {
   metricName: string | null
   metricType: string | null
   value: number | null
-  eventHash: string | null
   ingestedAt: Date | null
+  eventHash: string | null
 }
 
 export type MetricPointCountAggregateOutputType = {
@@ -71,8 +71,8 @@ export type MetricPointCountAggregateOutputType = {
   value: number
   attributes: number
   resourceAttributes: number
-  eventHash: number
   ingestedAt: number
+  eventHash: number
   _all: number
 }
 
@@ -94,8 +94,8 @@ export type MetricPointMinAggregateInputType = {
   metricName?: true
   metricType?: true
   value?: true
-  eventHash?: true
   ingestedAt?: true
+  eventHash?: true
 }
 
 export type MetricPointMaxAggregateInputType = {
@@ -107,8 +107,8 @@ export type MetricPointMaxAggregateInputType = {
   metricName?: true
   metricType?: true
   value?: true
-  eventHash?: true
   ingestedAt?: true
+  eventHash?: true
 }
 
 export type MetricPointCountAggregateInputType = {
@@ -122,8 +122,8 @@ export type MetricPointCountAggregateInputType = {
   value?: true
   attributes?: true
   resourceAttributes?: true
-  eventHash?: true
   ingestedAt?: true
+  eventHash?: true
   _all?: true
 }
 
@@ -224,8 +224,8 @@ export type MetricPointGroupByOutputType = {
   value: number
   attributes: runtime.JsonValue | null
   resourceAttributes: runtime.JsonValue | null
-  eventHash: string | null
   ingestedAt: Date
+  eventHash: string | null
   _count: MetricPointCountAggregateOutputType | null
   _avg: MetricPointAvgAggregateOutputType | null
   _sum: MetricPointSumAggregateOutputType | null
@@ -262,8 +262,8 @@ export type MetricPointWhereInput = {
   value?: Prisma.FloatFilter<"MetricPoint"> | number
   attributes?: Prisma.JsonNullableFilter<"MetricPoint">
   resourceAttributes?: Prisma.JsonNullableFilter<"MetricPoint">
-  eventHash?: Prisma.StringNullableFilter<"MetricPoint"> | string | null
   ingestedAt?: Prisma.DateTimeFilter<"MetricPoint"> | Date | string
+  eventHash?: Prisma.StringNullableFilter<"MetricPoint"> | string | null
 }
 
 export type MetricPointOrderByWithRelationInput = {
@@ -277,8 +277,8 @@ export type MetricPointOrderByWithRelationInput = {
   value?: Prisma.SortOrder
   attributes?: Prisma.SortOrderInput | Prisma.SortOrder
   resourceAttributes?: Prisma.SortOrderInput | Prisma.SortOrder
-  eventHash?: Prisma.SortOrderInput | Prisma.SortOrder
   ingestedAt?: Prisma.SortOrder
+  eventHash?: Prisma.SortOrderInput | Prisma.SortOrder
 }
 
 export type MetricPointWhereUniqueInput = Prisma.AtLeast<{
@@ -296,8 +296,8 @@ export type MetricPointWhereUniqueInput = Prisma.AtLeast<{
   value?: Prisma.FloatFilter<"MetricPoint"> | number
   attributes?: Prisma.JsonNullableFilter<"MetricPoint">
   resourceAttributes?: Prisma.JsonNullableFilter<"MetricPoint">
-  eventHash?: Prisma.StringNullableFilter<"MetricPoint"> | string | null
   ingestedAt?: Prisma.DateTimeFilter<"MetricPoint"> | Date | string
+  eventHash?: Prisma.StringNullableFilter<"MetricPoint"> | string | null
 }, "id" | "organizationId_eventHash">
 
 export type MetricPointOrderByWithAggregationInput = {
@@ -311,8 +311,8 @@ export type MetricPointOrderByWithAggregationInput = {
   value?: Prisma.SortOrder
   attributes?: Prisma.SortOrderInput | Prisma.SortOrder
   resourceAttributes?: Prisma.SortOrderInput | Prisma.SortOrder
-  eventHash?: Prisma.SortOrderInput | Prisma.SortOrder
   ingestedAt?: Prisma.SortOrder
+  eventHash?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.MetricPointCountOrderByAggregateInput
   _avg?: Prisma.MetricPointAvgOrderByAggregateInput
   _max?: Prisma.MetricPointMaxOrderByAggregateInput
@@ -334,8 +334,8 @@ export type MetricPointScalarWhereWithAggregatesInput = {
   value?: Prisma.FloatWithAggregatesFilter<"MetricPoint"> | number
   attributes?: Prisma.JsonNullableWithAggregatesFilter<"MetricPoint">
   resourceAttributes?: Prisma.JsonNullableWithAggregatesFilter<"MetricPoint">
-  eventHash?: Prisma.StringNullableWithAggregatesFilter<"MetricPoint"> | string | null
   ingestedAt?: Prisma.DateTimeWithAggregatesFilter<"MetricPoint"> | Date | string
+  eventHash?: Prisma.StringNullableWithAggregatesFilter<"MetricPoint"> | string | null
 }
 
 export type MetricPointCreateInput = {
@@ -349,8 +349,8 @@ export type MetricPointCreateInput = {
   value: number
   attributes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   resourceAttributes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  eventHash?: string | null
   ingestedAt?: Date | string
+  eventHash?: string | null
 }
 
 export type MetricPointUncheckedCreateInput = {
@@ -364,8 +364,8 @@ export type MetricPointUncheckedCreateInput = {
   value: number
   attributes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   resourceAttributes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  eventHash?: string | null
   ingestedAt?: Date | string
+  eventHash?: string | null
 }
 
 export type MetricPointUpdateInput = {
@@ -379,8 +379,8 @@ export type MetricPointUpdateInput = {
   value?: Prisma.FloatFieldUpdateOperationsInput | number
   attributes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   resourceAttributes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  eventHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ingestedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  eventHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type MetricPointUncheckedUpdateInput = {
@@ -394,8 +394,8 @@ export type MetricPointUncheckedUpdateInput = {
   value?: Prisma.FloatFieldUpdateOperationsInput | number
   attributes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   resourceAttributes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  eventHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ingestedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  eventHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type MetricPointCreateManyInput = {
@@ -409,8 +409,8 @@ export type MetricPointCreateManyInput = {
   value: number
   attributes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   resourceAttributes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  eventHash?: string | null
   ingestedAt?: Date | string
+  eventHash?: string | null
 }
 
 export type MetricPointUpdateManyMutationInput = {
@@ -424,8 +424,8 @@ export type MetricPointUpdateManyMutationInput = {
   value?: Prisma.FloatFieldUpdateOperationsInput | number
   attributes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   resourceAttributes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  eventHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ingestedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  eventHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type MetricPointUncheckedUpdateManyInput = {
@@ -439,8 +439,8 @@ export type MetricPointUncheckedUpdateManyInput = {
   value?: Prisma.FloatFieldUpdateOperationsInput | number
   attributes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   resourceAttributes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  eventHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ingestedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  eventHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type MetricPointOrganizationIdEventHashCompoundUniqueInput = {
@@ -459,8 +459,8 @@ export type MetricPointCountOrderByAggregateInput = {
   value?: Prisma.SortOrder
   attributes?: Prisma.SortOrder
   resourceAttributes?: Prisma.SortOrder
-  eventHash?: Prisma.SortOrder
   ingestedAt?: Prisma.SortOrder
+  eventHash?: Prisma.SortOrder
 }
 
 export type MetricPointAvgOrderByAggregateInput = {
@@ -476,8 +476,8 @@ export type MetricPointMaxOrderByAggregateInput = {
   metricName?: Prisma.SortOrder
   metricType?: Prisma.SortOrder
   value?: Prisma.SortOrder
-  eventHash?: Prisma.SortOrder
   ingestedAt?: Prisma.SortOrder
+  eventHash?: Prisma.SortOrder
 }
 
 export type MetricPointMinOrderByAggregateInput = {
@@ -489,8 +489,8 @@ export type MetricPointMinOrderByAggregateInput = {
   metricName?: Prisma.SortOrder
   metricType?: Prisma.SortOrder
   value?: Prisma.SortOrder
-  eventHash?: Prisma.SortOrder
   ingestedAt?: Prisma.SortOrder
+  eventHash?: Prisma.SortOrder
 }
 
 export type MetricPointSumOrderByAggregateInput = {
@@ -510,8 +510,8 @@ export type MetricPointSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   value?: boolean
   attributes?: boolean
   resourceAttributes?: boolean
-  eventHash?: boolean
   ingestedAt?: boolean
+  eventHash?: boolean
 }, ExtArgs["result"]["metricPoint"]>
 
 export type MetricPointSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -525,8 +525,8 @@ export type MetricPointSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
   value?: boolean
   attributes?: boolean
   resourceAttributes?: boolean
-  eventHash?: boolean
   ingestedAt?: boolean
+  eventHash?: boolean
 }, ExtArgs["result"]["metricPoint"]>
 
 export type MetricPointSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -540,8 +540,8 @@ export type MetricPointSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
   value?: boolean
   attributes?: boolean
   resourceAttributes?: boolean
-  eventHash?: boolean
   ingestedAt?: boolean
+  eventHash?: boolean
 }, ExtArgs["result"]["metricPoint"]>
 
 export type MetricPointSelectScalar = {
@@ -555,11 +555,11 @@ export type MetricPointSelectScalar = {
   value?: boolean
   attributes?: boolean
   resourceAttributes?: boolean
-  eventHash?: boolean
   ingestedAt?: boolean
+  eventHash?: boolean
 }
 
-export type MetricPointOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "organizationId" | "timestamp" | "serviceName" | "environment" | "metricName" | "metricType" | "value" | "attributes" | "resourceAttributes" | "eventHash" | "ingestedAt", ExtArgs["result"]["metricPoint"]>
+export type MetricPointOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "organizationId" | "timestamp" | "serviceName" | "environment" | "metricName" | "metricType" | "value" | "attributes" | "resourceAttributes" | "ingestedAt" | "eventHash", ExtArgs["result"]["metricPoint"]>
 
 export type $MetricPointPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "MetricPoint"
@@ -575,8 +575,8 @@ export type $MetricPointPayload<ExtArgs extends runtime.Types.Extensions.Interna
     value: number
     attributes: runtime.JsonValue | null
     resourceAttributes: runtime.JsonValue | null
-    eventHash: string | null
     ingestedAt: Date
+    eventHash: string | null
   }, ExtArgs["result"]["metricPoint"]>
   composites: {}
 }
@@ -1010,8 +1010,8 @@ export interface MetricPointFieldRefs {
   readonly value: Prisma.FieldRef<"MetricPoint", 'Float'>
   readonly attributes: Prisma.FieldRef<"MetricPoint", 'Json'>
   readonly resourceAttributes: Prisma.FieldRef<"MetricPoint", 'Json'>
-  readonly eventHash: Prisma.FieldRef<"MetricPoint", 'String'>
   readonly ingestedAt: Prisma.FieldRef<"MetricPoint", 'DateTime'>
+  readonly eventHash: Prisma.FieldRef<"MetricPoint", 'String'>
 }
     
 

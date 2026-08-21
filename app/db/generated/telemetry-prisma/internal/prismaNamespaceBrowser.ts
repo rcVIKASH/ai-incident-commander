@@ -106,8 +106,8 @@ export const TelemetryLogScalarFieldEnum = {
   spanId: 'spanId',
   attributes: 'attributes',
   resourceAttributes: 'resourceAttributes',
-  eventHash: 'eventHash',
-  ingestedAt: 'ingestedAt'
+  ingestedAt: 'ingestedAt',
+  eventHash: 'eventHash'
 } as const
 
 export type TelemetryLogScalarFieldEnum = (typeof TelemetryLogScalarFieldEnum)[keyof typeof TelemetryLogScalarFieldEnum]
@@ -124,8 +124,8 @@ export const MetricPointScalarFieldEnum = {
   value: 'value',
   attributes: 'attributes',
   resourceAttributes: 'resourceAttributes',
-  eventHash: 'eventHash',
-  ingestedAt: 'ingestedAt'
+  ingestedAt: 'ingestedAt',
+  eventHash: 'eventHash'
 } as const
 
 export type MetricPointScalarFieldEnum = (typeof MetricPointScalarFieldEnum)[keyof typeof MetricPointScalarFieldEnum]

@@ -8,16 +8,58 @@ datasource db {
 }
 
 model Organization {
-  id          String   @id @default(cuid())
-  name        String
-  slug        String   @unique
-  description String?
-  apiKey      ApiKey[]
-  users       User[]
-  incidents   Incident[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id           String   @id @default(cuid())
+  name         String
+  slug         String   @unique
+  description  String?
+  apiKey       ApiKey[]
+  users        User[]
+  incidents    Incident[]
+  integrations OrganizationIntegration[]
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
+
+enum IntegrationProvider {
+  GITHUB
+  SLACK
+}
+
+enum IntegrationStatus {
+  ACTIVE
+  REVOKED
+  EXPIRED
+  ERROR
+}
+
+model OrganizationIntegration {
+  id             String              @id @default(cuid())
+  organizationId String
+  organization   Organization        @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  provider       IntegrationProvider
+  status         IntegrationStatus   @default(ACTIVE)
+
+  externalAccountId   String?
+  externalAccountName String?
+
+  accessTokenEncrypted  String?
+  refreshTokenEncrypted String?
+
+  tokenExpiresAt DateTime?
+
+  scopes         Json?
+
+  metadata       Json?
+
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+
+  @@unique([organizationId, provider])
+  @@index([organizationId])
+  @@index([provider])
+}
+
 
 enum UserRole {
   OWNER
